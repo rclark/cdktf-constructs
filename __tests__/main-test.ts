@@ -1,7 +1,9 @@
 // Copyright (c) HashiCorp, Inc
 // SPDX-License-Identifier: MPL-2.0
 import "cdktf/lib/testing/adapters/jest"; // Load types for expect matchers
-// import { Testing } from "cdktf";
+import { Testing } from "cdktf";
+import { Lambda } from "../lib/lambda"
+import { LambdaFunction } from "@cdktf/provider-aws/lib/lambda-function";
 
 describe("My CDKTF Application", () => {
   // The tests below are example tests, you can find more information at
@@ -9,38 +11,31 @@ describe("My CDKTF Application", () => {
   it.todo("should be tested");
 
   // // All Unit tests test the synthesised terraform code, it does not create real-world resources
-  // describe("Unit testing using assertions", () => {
-  //   it("should contain a resource", () => {
-  //     // import { Image,Container } from "./.gen/providers/docker"
-  //     expect(
-  //       Testing.synthScope((scope) => {
-  //         new MyApplicationsAbstraction(scope, "my-app", {});
-  //       })
-  //     ).toHaveResource(Container);
+  describe("Unit testing using assertions", () => {
+    it("should contain a resource", async () => {
+      // let lambda: Lambda;
 
-  //     expect(
-  //       Testing.synthScope((scope) => {
-  //         new MyApplicationsAbstraction(scope, "my-app", {});
-  //       })
-  //     ).toHaveResourceWithProperties(Image, { name: "ubuntu:latest" });
-  //   });
-  // });
+      const synth = Testing.synthScope((scope) => {
+        new Lambda(scope, "my-function", {});
+      });
 
-  // describe("Unit testing using snapshots", () => {
-  //   it("Tests the snapshot", () => {
-  //     const app = Testing.app();
-  //     const stack = new TerraformStack(app, "test");
+      expect(synth).toHaveResourceWithProperties(LambdaFunction, {
+        function_name: "my-function",
+        memory_size: 128,
+        // role: lambda.role.arn,
+        role: "${aws_iam_role.my-function_my-function-role_CF920605.arn}",
+        timeout: 300,
+      });
+    });
+  });
 
-  //     new TestProvider(stack, "provider", {
-  //       accessKey: "1",
-  //     });
-
-  //     new TestResource(stack, "test", {
-  //       name: "my-resource",
-  //     });
-
-  //     expect(Testing.synth(stack)).toMatchSnapshot();
-  //   });
+  describe("Unit testing using snapshots", () => {
+    it("Tests the snapshot", () => {
+      expect(Testing.synthScope((scope) => {
+        new Lambda(scope, "my-function", {});
+      })).toMatchSnapshot();
+    });
+  });
 
   //   it("Tests a combination of resources", () => {
   //     expect(
