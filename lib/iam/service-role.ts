@@ -1,8 +1,9 @@
 import { Construct } from 'constructs';
 import { TerraformMetaArguments } from 'cdktf';
-import { PrincipalType, Role } from '../role';
 import * as iam from 'iam-floyd';
 import { DataAwsPartition } from '@cdktf/provider-aws/lib/data-aws-partition';
+
+import { PrincipalType, Role } from './role';
 
 export interface ServiceRoleConfig extends TerraformMetaArguments {
   name: string;
@@ -12,9 +13,9 @@ export interface ServiceRoleConfig extends TerraformMetaArguments {
 
 export class ServiceRole extends Role {
   constructor(scope: Construct, id: string, config: ServiceRoleConfig) {
-    const partition = new DataAwsPartition(scope, id, config);
+    const partition = new DataAwsPartition(scope, `${id}-partition`, config);
 
-    const avoidSuffix = [
+    const noPartition = [
       'apigateway',
       'autoscaling',
       'cloudformation',
@@ -34,7 +35,7 @@ export class ServiceRole extends Role {
 
     const principals = config.services.map((value: string): string => {
       const prefix = value.replace(/\.amazonaws.com(\..*)?$/, '');
-      const suffix = avoidSuffix.includes(prefix)
+      const suffix = noPartition.includes(prefix)
         ? 'amazonaws.com'
         : partition.dnsSuffix;
       return `${prefix}.${suffix}`;

@@ -15,6 +15,7 @@ class MyStack extends TerraformStack {
 
     new AwsProvider(this, 'aws', { region: 'us-west-2' });
     new Lambda(this, 's3-bucket-controller', {
+      functionName: 's3-bucket-controller',
       dependsOn: [bucket],
       role: {
         statement: [new iam.S3().allow().allActions().on(bucket.arn)],

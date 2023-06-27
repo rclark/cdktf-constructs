@@ -20,16 +20,16 @@ import { DataAwsRegion } from '@cdktf/provider-aws/lib/data-aws-region';
 import * as iam from 'iam-floyd';
 
 import { ShareableMeta } from '../shareable-meta';
+import { Role, ServiceRole } from '../iam';
 
 export interface LambdaRoleConfig {
   arn?: string;
   statement?: iam.PolicyStatement[];
 }
 
-export interface LambdaConfig
-  extends Omit<LambdaFunctionConfig, 'functionName' | 'role'> {
+export interface LambdaConfig extends Omit<LambdaFunctionConfig, 'role'> {
   logGroup?: Omit<CloudwatchLogGroupConfig, 'name' | 'namePrefix'>;
-
+  role?: LambdaRoleConfig;
   alarm?: Partial<
     Omit<
       CloudwatchMetricAlarmConfig,
@@ -40,11 +40,6 @@ export interface LambdaConfig
       | 'metricName'
     >
   >;
-
-  role?: LambdaRoleConfig;
-
-  roleName?: string;
-  statement?: iam.PolicyStatement[];
 }
 
 export class Lambda extends ShareableMeta {
@@ -70,10 +65,10 @@ export class Lambda extends ShareableMeta {
   constructor(scope: Construct, id: string, config: LambdaConfig) {
     super(scope, id, config);
 
-    this.functionName = id;
+    this.functionName = config.functionName;
     this.region = new DataAwsRegion(scope, `${id}-region`);
 
-    this.buildRole(config);
+    this.buildRole(config.role);
 
     this.logGroup = new CloudwatchLogGroup(
       this,
@@ -130,63 +125,24 @@ export class Lambda extends ShareableMeta {
     return this._role;
   }
 
-  private buildRole(config: LambdaRoleConfig) {
-    let role: DataAwsIamRole | IamRole;
-    if (config.arn) {
-      const [, name] = config.arn.split('/');
-      role = new DataAwsIamRole(
-        this,
-        `${this.functionName}-external-role`,
-        this.sharedMeta({ name })
-      );
-    } else {
-      const assume = new DataAwsIamPolicyDocument(
-        this,
-        `${this.functionName}-assume`,
-        this.sharedMeta({
-          statement: [
-            {
-              effect: 'Allow',
-              actions: ['sts:AssumeRole'],
-              principals: [
-                {
-                  type: 'Service',
-                  identifiers: ['lambda.amazonaws.com'],
-                },
-              ],
-            },
-          ],
-        })
-      );
+  private buildRole(config: LambdaRoleConfig | undefined) {
+    const id = `${this.functionName}-role`;
 
-      role = new IamRole(
-        this,
-        `${this.functionName}-role`,
-        this.sharedMeta({
-          name: `lambda-role-${this.functionName}`,
-          assumeRolePolicy: assume.json,
-        })
-      );
+    if (config && config.arn) {
+      const existing = new Role(this, id, {
+        arn: config.arn,
+        statement: config.statement,
+      });
+      this._role = existing.role;
+      return;
     }
 
-    if (config.statement) {
-      const policy = {
-        Version: '2012-10-17',
-        Statement: config.statement,
-      };
-
-      new IamRolePolicy(
-        this,
-        `${this.functionName}-user-policy`,
-        this.sharedMeta({
-          name: `user-permissions-${this.functionName}`,
-          role: role.arn,
-          policy: JSON.stringify(policy),
-        })
-      );
-    }
-
-    this._role = role;
+    const newone = new ServiceRole(this, id, {
+      name: `lambda-role-${this.functionName}`,
+      statement: config ? config.statement : [],
+      services: ['lambda'],
+    });
+    this._role = newone.role;
   }
 
   private lambdaCfg(config: LambdaConfig): LambdaFunctionConfig {

@@ -3,16 +3,17 @@ import { IamRole } from '@cdktf/provider-aws/lib/iam-role';
 import { DataAwsIamRole } from '@cdktf/provider-aws/lib/data-aws-iam-role';
 import { TerraformMetaArguments } from 'cdktf';
 import * as iam from 'iam-floyd';
-import { ShareableMeta } from '../shareable-meta';
 import { DataAwsIamPolicyDocument } from '@cdktf/provider-aws/lib/data-aws-iam-policy-document';
 import { IamRolePolicy } from '@cdktf/provider-aws/lib/iam-role-policy';
+
+import { ShareableMeta } from '../shareable-meta';
 
 export type Principal = {
   type: PrincipalType;
   identifiers: string[];
 };
 
-export declare enum PrincipalType {
+export enum PrincipalType {
   AWS = 'AWS',
   FEDERATED = 'Federated',
   CANONICAL_USER = 'CanonicalUser',
@@ -21,8 +22,8 @@ export declare enum PrincipalType {
 
 export interface NewRoleConfig extends TerraformMetaArguments {
   name: string;
-  statement?: iam.PolicyStatement[];
   principals: Principal[];
+  statement?: iam.PolicyStatement[];
 }
 
 export interface ExistingRoleConfig extends TerraformMetaArguments {
@@ -30,7 +31,7 @@ export interface ExistingRoleConfig extends TerraformMetaArguments {
   statement?: iam.PolicyStatement[];
 }
 
-export interface IRoleConfig extends TerraformMetaArguments {
+interface IRoleConfig extends TerraformMetaArguments {
   name?: string;
   arn?: string;
   statement?: iam.PolicyStatement[];
@@ -53,7 +54,7 @@ export class Role extends ShareableMeta {
         `${id}-external-role`,
         this.sharedMeta({ name })
       );
-    } else if (config.principals) {
+    } else if (config.principals && config.name) {
       const assume = new DataAwsIamPolicyDocument(
         this,
         `${id}-assume`,
@@ -70,14 +71,16 @@ export class Role extends ShareableMeta {
 
       this.role = new IamRole(
         this,
-        `${id}-role`,
+        `${id}-new-role`,
         this.sharedMeta({
-          name: `lambda-role-${id}`,
+          name: config.name,
           assumeRolePolicy: assume.json,
         })
       );
     } else {
-      throw new Error('Role must be provided either a name or principals list');
+      throw new Error(
+        'Role must be provided either an arn or a name and principals list'
+      );
     }
 
     if (config.statement) {

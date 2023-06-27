@@ -4,7 +4,20 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-assume_A3DBB87B": {
+      "my-function_my-function-log-permissions_1D3E84D7": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
         "statement": [
           {
             "actions": [
@@ -21,19 +34,10 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
             ]
           }
         ]
-      },
-      "my-function_my-function-log-permissions_1D3E84D7": {
-        "statement": [
-          {
-            "actions": [
-              "logs:*"
-            ],
-            "effect": "Allow",
-            "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
-            ]
-          }
-        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_my-function-role-partition_7C5CD2BD": {
       }
     },
     "aws_region": {
@@ -69,8 +73,8 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_CF920605": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-assume_A3DBB87B.json}",
+      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
         "name": "lambda-role-my-function"
       }
     },
@@ -78,7 +82,7 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
       "my-function_my-function-log-policy_78428521": {
         "name": "lambda-logging-my-function",
         "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_CF920605.arn}"
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
       }
     },
     "aws_lambda_function": {
@@ -88,7 +92,7 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_CF920605.arn}",
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
         "timeout": 300
       }
     }
