@@ -1,35 +1,53 @@
-import { Construct } from "constructs";
-import { ITerraformDependable, TerraformMetaArguments } from "cdktf";
+import { Construct } from 'constructs';
+import { ITerraformDependable } from 'cdktf';
 import {
   LambdaFunction,
   LambdaFunctionConfig,
-} from "@cdktf/provider-aws/lib/lambda-function";
+} from '@cdktf/provider-aws/lib/lambda-function';
 import {
   CloudwatchLogGroup,
   CloudwatchLogGroupConfig,
-} from "@cdktf/provider-aws/lib/cloudwatch-log-group";
+} from '@cdktf/provider-aws/lib/cloudwatch-log-group';
 import {
   CloudwatchMetricAlarm,
   CloudwatchMetricAlarmConfig,
-} from "@cdktf/provider-aws/lib/cloudwatch-metric-alarm";
-import { IamRolePolicy } from "@cdktf/provider-aws/lib/iam-role-policy";
-import { IamRole } from "@cdktf/provider-aws/lib/iam-role";
-import { DataAwsIamRole } from "@cdktf/provider-aws/lib/data-aws-iam-role";
-import { DataAwsIamPolicyDocument } from "@cdktf/provider-aws/lib/data-aws-iam-policy-document";
-import { DataAwsRegion } from "@cdktf/provider-aws/lib/data-aws-region";
-import * as iam from "iam-floyd";
-// import { DataAwsCallerIdentity } from "@cdktf/provider-aws/lib/data-aws-caller-identity";
-// import { DataAwsPartition } from "@cdktf/provider-aws/lib/data-aws-partition";
+} from '@cdktf/provider-aws/lib/cloudwatch-metric-alarm';
+import { IamRolePolicy } from '@cdktf/provider-aws/lib/iam-role-policy';
+import { IamRole } from '@cdktf/provider-aws/lib/iam-role';
+import { DataAwsIamRole } from '@cdktf/provider-aws/lib/data-aws-iam-role';
+import { DataAwsIamPolicyDocument } from '@cdktf/provider-aws/lib/data-aws-iam-policy-document';
+import { DataAwsRegion } from '@cdktf/provider-aws/lib/data-aws-region';
+import * as iam from 'iam-floyd';
 
-export interface LambdaConfig extends Partial<LambdaFunctionConfig> {
-  logGroup?: Partial<CloudwatchLogGroupConfig>;
-  alarm?: Partial<CloudwatchMetricAlarmConfig>;
+import { ShareableMeta } from '../shareable-meta';
+
+export interface LambdaRoleConfig {
+  arn?: string;
+  statement?: iam.PolicyStatement[];
+}
+
+export interface LambdaConfig
+  extends Omit<LambdaFunctionConfig, 'functionName' | 'role'> {
+  logGroup?: Omit<CloudwatchLogGroupConfig, 'name' | 'namePrefix'>;
+
+  alarm?: Partial<
+    Omit<
+      CloudwatchMetricAlarmConfig,
+      | 'alarmName'
+      | 'alarmDescription'
+      | 'namespace'
+      | 'dimensions'
+      | 'metricName'
+    >
+  >;
+
+  role?: LambdaRoleConfig;
 
   roleName?: string;
   statement?: iam.PolicyStatement[];
 }
 
-export class Lambda extends Construct {
+export class Lambda extends ShareableMeta {
   public static functionDefaults: Partial<LambdaFunctionConfig> = {
     memorySize: 128,
     timeout: 300,
@@ -38,11 +56,11 @@ export class Lambda extends Construct {
   public static alarmDefaults: Partial<CloudwatchMetricAlarmConfig> = {
     alarmActions: [],
     period: 60,
-    statistic: "SUM",
+    statistic: 'SUM',
     datapointsToAlarm: 1,
     threshold: 0,
-    comparisonOperator: "GreaterThanThreshold",
-    treatMissingData: "notBreaching",
+    comparisonOperator: 'GreaterThanThreshold',
+    treatMissingData: 'notBreaching',
   };
 
   public static logGroupDefaults: Partial<CloudwatchLogGroupConfig> = {
@@ -50,15 +68,12 @@ export class Lambda extends Construct {
   };
 
   constructor(scope: Construct, id: string, config: LambdaConfig) {
-    super(scope, id);
-    // const caller = new DataAwsCallerIdentity(scope, name);
-    // const partition = new DataAwsPartition(scope, name);
+    super(scope, id, config);
 
     this.functionName = id;
-    this.meta = config;
     this.region = new DataAwsRegion(scope, `${id}-region`);
 
-    this.role = this.buildRole(config);
+    this.buildRole(config);
 
     this.logGroup = new CloudwatchLogGroup(
       this,
@@ -77,7 +92,6 @@ export class Lambda extends Construct {
 
   public lambda: LambdaFunction;
   public alarm: CloudwatchMetricAlarm;
-  public role: DataAwsIamRole | IamRole;
 
   public set logGroup(group: CloudwatchLogGroup) {
     const logging = new DataAwsIamPolicyDocument(
@@ -86,8 +100,8 @@ export class Lambda extends Construct {
       {
         statement: [
           {
-            effect: "Allow",
-            actions: ["logs:*"],
+            effect: 'Allow',
+            actions: ['logs:*'],
             resources: [group.arn],
           },
         ],
@@ -108,39 +122,36 @@ export class Lambda extends Construct {
   }
 
   private functionName: string;
-  private meta: TerraformMetaArguments;
   private region: DataAwsRegion;
   private _logGroup!: CloudwatchLogGroup;
+  private _role!: DataAwsIamRole | IamRole;
 
-  private withMeta<TerraformResourceConfig>(
-    config: TerraformResourceConfig
-  ): TerraformResourceConfig {
-    return Object.assign({}, this.meta, config);
+  public get role(): DataAwsIamRole | IamRole {
+    return this._role;
   }
 
-  private buildRole(config: LambdaConfig): DataAwsIamRole | IamRole {
-    const name = config.roleName;
-
+  private buildRole(config: LambdaRoleConfig) {
     let role: DataAwsIamRole | IamRole;
-    if (name) {
+    if (config.arn) {
+      const [, name] = config.arn.split('/');
       role = new DataAwsIamRole(
         this,
         `${this.functionName}-external-role`,
-        this.withMeta({ name })
+        this.sharedMeta({ name })
       );
     } else {
       const assume = new DataAwsIamPolicyDocument(
         this,
         `${this.functionName}-assume`,
-        this.withMeta({
+        this.sharedMeta({
           statement: [
             {
-              effect: "Allow",
-              actions: ["sts:AssumeRole"],
+              effect: 'Allow',
+              actions: ['sts:AssumeRole'],
               principals: [
                 {
-                  type: "Service",
-                  identifiers: ["lambda.amazonaws.com"],
+                  type: 'Service',
+                  identifiers: ['lambda.amazonaws.com'],
                 },
               ],
             },
@@ -151,7 +162,7 @@ export class Lambda extends Construct {
       role = new IamRole(
         this,
         `${this.functionName}-role`,
-        this.withMeta({
+        this.sharedMeta({
           name: `lambda-role-${this.functionName}`,
           assumeRolePolicy: assume.json,
         })
@@ -160,14 +171,14 @@ export class Lambda extends Construct {
 
     if (config.statement) {
       const policy = {
-        Version: "2012-10-17",
+        Version: '2012-10-17',
         Statement: config.statement,
       };
 
       new IamRolePolicy(
         this,
         `${this.functionName}-user-policy`,
-        this.withMeta({
+        this.sharedMeta({
           name: `user-permissions-${this.functionName}`,
           role: role.arn,
           policy: JSON.stringify(policy),
@@ -175,7 +186,7 @@ export class Lambda extends Construct {
       );
     }
 
-    return role;
+    this._role = role;
   }
 
   private lambdaCfg(config: LambdaConfig): LambdaFunctionConfig {
@@ -188,7 +199,7 @@ export class Lambda extends Construct {
       role: this.role.arn,
     };
 
-    return this.withMeta(
+    return this.sharedMeta(
       Object.assign({}, Lambda.functionDefaults, config, required)
     );
   }
@@ -197,17 +208,22 @@ export class Lambda extends Construct {
     const required: Partial<CloudwatchMetricAlarmConfig> = {
       alarmName: `lambda-errors-${this.functionName}-${this.region.name}`,
       alarmDescription: `Error alarm for the ${this.functionName} Lambda function`,
-      namespace: "AWS/Lambda",
-      dimensions: { FunctionName: this.lambda.functionName },
-      metricName: "Errors",
+      namespace: 'AWS/Lambda',
+      dimensions: { FunctionName: this.functionName },
+      metricName: 'Errors',
     };
 
-    const intermediate = Object.assign({}, Lambda.alarmDefaults, config.alarm, required);
+    const intermediate = Object.assign(
+      {},
+      Lambda.alarmDefaults,
+      config.alarm,
+      required
+    );
 
     const evaluationPeriods =
       this.lambdaCfg(config).timeout! / intermediate.period!;
 
-    return this.withMeta(
+    return this.sharedMeta(
       Object.assign(
         { evaluationPeriods },
         intermediate
@@ -220,7 +236,7 @@ export class Lambda extends Construct {
       name: `/aws/lambda/${this.functionName}`,
     };
 
-    return this.withMeta(
+    return this.sharedMeta(
       Object.assign({}, Lambda.logGroupDefaults, config.logGroup, required)
     );
   }

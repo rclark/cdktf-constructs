@@ -57,7 +57,7 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
-          "FunctionName": "\${aws_lambda_function.my-function_0A1E7AB6.function_name}"
+          "FunctionName": "my-function"
         },
         "evaluation_periods": 5,
         "metric_name": "Errors",
