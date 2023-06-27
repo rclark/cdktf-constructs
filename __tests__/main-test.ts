@@ -6,7 +6,6 @@ import { Lambda } from '../lib/lambda';
 import { LambdaFunction } from '@cdktf/provider-aws/lib/lambda-function';
 
 describe('My CDKTF Application', () => {
-
   describe('Unit testing using assertions', () => {
     it('should contain a resource', async () => {
       const synth = Testing.synthScope((scope) => {

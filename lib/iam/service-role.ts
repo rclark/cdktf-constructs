@@ -1,11 +1,10 @@
 import { Construct } from 'constructs';
-import { TerraformMetaArguments } from 'cdktf';
 import * as iam from 'iam-floyd';
 import { DataAwsPartition } from '@cdktf/provider-aws/lib/data-aws-partition';
 
-import { PrincipalType, Role } from './role';
+import { LimitedRoleConfig, PrincipalType, Role } from './role';
 
-export interface ServiceRoleConfig extends TerraformMetaArguments {
+export interface ServiceRoleConfig extends LimitedRoleConfig {
   name: string;
   statement?: iam.PolicyStatement[];
   services: string[];

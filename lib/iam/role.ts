@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { IamRole } from '@cdktf/provider-aws/lib/iam-role';
+import { IamRole, IamRoleConfig } from '@cdktf/provider-aws/lib/iam-role';
 import { DataAwsIamRole } from '@cdktf/provider-aws/lib/data-aws-iam-role';
 import { TerraformMetaArguments } from 'cdktf';
 import * as iam from 'iam-floyd';
@@ -20,7 +20,13 @@ export enum PrincipalType {
   SERVICE = 'Service',
 }
 
-export interface NewRoleConfig extends TerraformMetaArguments {
+export interface LimitedRoleConfig
+  extends Omit<
+    IamRoleConfig,
+    'assumeRolePolicy' | 'name' | 'namePrefix' | 'inlinePolicy'
+  > {}
+
+export interface NewRoleConfig extends LimitedRoleConfig {
   name: string;
   principals: Principal[];
   statement?: iam.PolicyStatement[];

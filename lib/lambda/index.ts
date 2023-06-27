@@ -88,7 +88,7 @@ export class Lambda extends ShareableMeta {
   public lambda: LambdaFunction;
   public alarm: CloudwatchMetricAlarm;
 
-  public set logGroup(group: CloudwatchLogGroup) {
+  private set logGroup(group: CloudwatchLogGroup) {
     const logging = new DataAwsIamPolicyDocument(
       this,
       `${this.functionName}-log-permissions`,
@@ -137,12 +137,12 @@ export class Lambda extends ShareableMeta {
       return;
     }
 
-    const newone = new ServiceRole(this, id, {
+    const newRole = new ServiceRole(this, id, {
       name: `lambda-role-${this.functionName}`,
       statement: config ? config.statement : [],
       services: ['lambda'],
     });
-    this._role = newone.role;
+    this._role = newRole.role;
   }
 
   private lambdaCfg(config: LambdaConfig): LambdaFunctionConfig {
