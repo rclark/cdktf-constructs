@@ -18,6 +18,7 @@ import {
   Role,
 } from '../lib/iam';
 import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
+import * as iam from 'iam-floyd';
 
 const fakeArn = 'arn:aws:service:us-west-2:123456789012:entity';
 const fakeSecurityGroup = 'sg-7ca1556d';
@@ -143,9 +144,7 @@ describe('cdk-constructs', () => {
         imageUri: 'public.ecr.aws/lambda/provided:al2',
         architectures: ['x86_64'],
         codeSigningConfigArn: fakeArn,
-        deadLetterConfig: {
-          targetArn: fakeArn,
-        },
+        deadLetterConfig: { targetArn: fakeArn },
         description: 'described',
         environment: { variables: { KEY: 'value' } },
         ephemeralStorage: { size: 512 },
@@ -185,6 +184,10 @@ describe('cdk-constructs', () => {
           okActions: [fakeArn],
           treatMissingData: 'missing',
           tags: { tag: 'value' },
+        },
+        role: {
+          arn: `${fakeArn}/role-name`,
+          policies: [new iam.S3().allow().allActions().on(fakeArn)],
         },
       };
 

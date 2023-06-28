@@ -120,28 +120,11 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
             ]
           }
         ]
-      },
-      "id_my-function-role_my-function-role-assume_3B36031C": {
-        "statement": [
-          {
-            "actions": [
-              "sts:AssumeRole"
-            ],
-            "effect": "Allow",
-            "principals": [
-              {
-                "identifiers": [
-                  "lambda.amazonaws.com"
-                ],
-                "type": "Service"
-              }
-            ]
-          }
-        ]
       }
     },
-    "aws_partition": {
-      "id_my-function-role-partition_C7AF5BB8": {
+    "aws_iam_role": {
+      "id_my-function-role_my-function-role-external-role_6B2F9127": {
+        "name": "role-name"
       }
     },
     "aws_region": {
@@ -192,17 +175,11 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
         "treat_missing_data": "missing"
       }
     },
-    "aws_iam_role": {
-      "id_my-function-role_my-function-role-new-role_2EB66BDC": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.id_my-function-role_my-function-role-assume_3B36031C.json}",
-        "name": "lambda-role-my-function"
-      }
-    },
     "aws_iam_role_policy": {
       "id_my-function-log-policy_EDED9500": {
         "name": "lambda-logging-my-function",
         "policy": "\${data.aws_iam_policy_document.id_my-function-log-permissions_8C1AFB0E.json}",
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}"
+        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}"
       }
     },
     "aws_lambda_function": {
@@ -253,7 +230,7 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
           "sg-7ca1556d"
         ],
         "reserved_concurrent_executions": -1,
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}",
+        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}",
         "skip_destroy": false,
         "tags": {
           "tag": "value"

@@ -28,7 +28,7 @@ import { DataAwsVpc } from '@cdktf/provider-aws/lib/data-aws-vpc';
 
 export interface LambdaRoleConfig {
   arn?: string;
-  statement?: iam.PolicyStatement[];
+  policies?: iam.PolicyStatement[];
 }
 
 export interface LambdaConfig
@@ -191,7 +191,7 @@ export class Lambda extends ShareableMeta {
     if (config && config.arn) {
       const existing = new Role(this, id, {
         arn: config.arn,
-        policies: config.statement,
+        policies: config.policies,
       });
       this._role = existing.role;
       return;
@@ -199,7 +199,7 @@ export class Lambda extends ShareableMeta {
 
     const newRole = new ServiceRole(this, id, {
       name: `lambda-role-${this.functionName}`,
-      statement: config ? config.statement : [],
+      statement: config ? config.policies : [],
       services: ['lambda'],
     });
     this._role = newRole.role;
