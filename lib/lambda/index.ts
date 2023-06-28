@@ -131,7 +131,7 @@ export class Lambda extends ShareableMeta {
     if (config && config.arn) {
       const existing = new Role(this, id, {
         arn: config.arn,
-        statement: config.statement,
+        policies: config.statement,
       });
       this._role = existing.role;
       return;

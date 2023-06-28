@@ -29,12 +29,12 @@ export interface LimitedRoleConfig
 export interface NewRoleConfig extends LimitedRoleConfig {
   name: string;
   principals: Principal[];
-  statement?: iam.PolicyStatement[];
+  policies?: iam.PolicyStatement[];
 }
 
 export interface ExistingRoleConfig extends TerraformMetaArguments {
   arn: string;
-  statement?: iam.PolicyStatement[];
+  policies?: iam.PolicyStatement[];
 }
 
 interface IRoleConfig extends TerraformMetaArguments {

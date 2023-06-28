@@ -1,35 +1,77 @@
 // Copyright (c) HashiCorp, Inc
 // SPDX-License-Identifier: MPL-2.0
 import 'cdktf/lib/testing/adapters/jest'; // Load types for expect matchers
-import { Testing } from 'cdktf';
+import { TerraformStack, Testing } from 'cdktf';
 import { Lambda } from '../lib/lambda';
-import { LambdaFunction } from '@cdktf/provider-aws/lib/lambda-function';
+import {
+  ExistingRoleConfig,
+  NewRoleConfig,
+  PrincipalType,
+  Role,
+} from '../lib/iam';
+import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
 
-describe('My CDKTF Application', () => {
-  describe('Unit testing using assertions', () => {
-    it('should contain a resource', async () => {
+describe('cdk-constructs', () => {
+  describe('Lambda', () => {
+    it('builds with minimal configuration', () => {
       const synth = Testing.synthScope((scope) => {
-        new Lambda(scope, 'my-function', {
-          functionName: 'my-function',
-        });
+        new Lambda(scope, 'my-function', { functionName: 'my-function' });
       });
-
-      expect(synth).toHaveResourceWithProperties(LambdaFunction, {
-        function_name: 'my-function',
-        memory_size: 128,
-        role: '${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}',
-        timeout: 300,
-      });
+      expect(synth).toMatchSnapshot();
     });
   });
 
-  describe('Unit testing using snapshots', () => {
-    it('Tests the snapshot', () => {
-      expect(
-        Testing.synthScope((scope) => {
-          new Lambda(scope, 'my-function', { functionName: 'my-function' });
-        })
-      ).toMatchSnapshot();
+  describe('Role', () => {
+    describe('with minimal configuration', () => {
+      describe('a new role', () => {
+        const cfg: NewRoleConfig = {
+          name: 'new-role',
+          principals: [
+            {
+              type: PrincipalType.AWS,
+              identifiers: ['arn:aws:iam::1234567890:user/chuck'],
+            },
+          ],
+        };
+
+        it('builds', () => {
+          const synth = Testing.synthScope((scope) => {
+            new Role(scope, 'my-role', cfg);
+          });
+          expect(synth).toMatchSnapshot();
+        });
+
+        it('makes valid terraform', () => {
+          const app = Testing.app();
+          const stack = new TerraformStack(app, 'test');
+          new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+          new Role(stack, 'my-role', cfg);
+
+          expect(Testing.fullSynth(stack)).toBeValidTerraform();
+        });
+      });
+
+      describe('an existing role', () => {
+        const cfg: ExistingRoleConfig = {
+          arn: 'arn:aws:iam::1234567890:role/developer',
+        };
+
+        it('builds', () => {
+          const synth = Testing.synthScope((scope) => {
+            new Role(scope, 'my-role', cfg);
+          });
+          expect(synth).toMatchSnapshot();
+        });
+
+        it('makes valid terraform', () => {
+          const app = Testing.app();
+          const stack = new TerraformStack(app, 'test');
+          new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+          new Role(stack, 'my-role', cfg);
+
+          expect(Testing.fullSynth(stack)).toBeValidTerraform();
+        });
+      });
     });
   });
 

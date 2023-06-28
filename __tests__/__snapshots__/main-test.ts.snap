@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`] = `
+exports[`cdk-constructs Lambda builds with minimal configuration 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
@@ -94,6 +94,53 @@ exports[`My CDKTF Application Unit testing using snapshots Tests the snapshot 1`
         "memory_size": 128,
         "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
         "timeout": 300
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Role with minimal configuration a new role builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-role_my-role-assume_AC40947D": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "arn:aws:iam::1234567890:user/chuck"
+                ],
+                "type": "AWS"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "resource": {
+    "aws_iam_role": {
+      "my-role_my-role-new-role_137CD40C": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_my-role-assume_AC40947D.json}",
+        "name": "new-role"
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Role with minimal configuration an existing role builds 1`] = `
+"{
+  "data": {
+    "aws_iam_role": {
+      "my-role_my-role-external-role_747D99F6": {
+        "name": "developer"
       }
     }
   }
