@@ -1,1 +1,3 @@
-export { Lambda, LambdaConfig } from './lambda';
+export * from './lambda';
+export * from './docker-lambda';
+export * from './bundled-lambda';

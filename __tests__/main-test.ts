@@ -2,7 +2,15 @@
 // SPDX-License-Identifier: MPL-2.0
 import 'cdktf/lib/testing/adapters/jest'; // Load types for expect matchers
 import { TerraformStack, Testing } from 'cdktf';
-import { Lambda } from '../lib/lambda';
+import {
+  Lambda,
+  LambdaConfig,
+  DockerLambda,
+  DockerLambdaConfig,
+  BundledLambdaConfig,
+  BundledLambda,
+  MetricStatistic,
+} from '../lib/lambda';
 import {
   ExistingRoleConfig,
   NewRoleConfig,
@@ -10,8 +18,6 @@ import {
   Role,
 } from '../lib/iam';
 import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
-import { DockerLambda, DockerLambdaConfig } from '../lib/lambda/docker-lambda';
-import { LambdaConfig, MetricStatistic } from '../lib/lambda/lambda';
 
 const fakeArn = 'arn:aws:service:us-west-2:123456789012:entity';
 const fakeSecurityGroup = 'sg-7ca1556d';
@@ -45,7 +51,7 @@ describe('cdk-constructs', () => {
         functionName: 'my-function',
         s3Bucket: 'my-bucket',
         s3Key: 'key/something.zip',
-        runtime: 'nodejs18.x'
+        runtime: 'nodejs18.x',
       };
 
       it('builds', () => {
@@ -72,7 +78,7 @@ describe('cdk-constructs', () => {
         lambda.inVPC();
 
         expect(Testing.fullSynth(stack)).toBeValidTerraform();
-      })
+      });
     });
 
     describe('inVPC method', () => {
@@ -200,6 +206,34 @@ describe('cdk-constructs', () => {
     });
   });
 
+  describe('BundledLambda', () => {
+    describe('with minimal configuration', () => {
+      const cfg: BundledLambdaConfig = {
+        functionName: 'my-function',
+        s3Bucket: 'my-bucket',
+        s3Key: 'some/key.zip',
+        runtime: 'nodejs18.x',
+        handler: 'index.handler',
+      };
+
+      it('builds', () => {
+        const synth = Testing.synthScope((scope) => {
+          new BundledLambda(scope, 'id', cfg);
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('makes valid terraform', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        new BundledLambda(stack, 'id', cfg);
+
+        expect(Testing.fullSynth(stack)).toBeValidTerraform();
+      });
+    });
+  });
+
   describe('Role', () => {
     describe('with minimal configuration', () => {
       describe('a new role', () => {
@@ -253,7 +287,6 @@ describe('cdk-constructs', () => {
       });
     });
   });
-
 
   //   it("check if this can be planned", () => {
   //     const app = Testing.app();

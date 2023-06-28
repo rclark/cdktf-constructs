@@ -181,7 +181,6 @@ export class Lambda extends ShareableMeta {
       );
     }
 
-
     this.lambda.putVpcConfig({ subnetIds, securityGroupIds });
     return this;
   }
