@@ -3,6 +3,7 @@ import { ITerraformDependable } from 'cdktf';
 import {
   LambdaFunction,
   LambdaFunctionConfig,
+  LambdaFunctionVpcConfig,
 } from '@cdktf/provider-aws/lib/lambda-function';
 import {
   CloudwatchLogGroup,
@@ -21,13 +22,17 @@ import * as iam from 'iam-floyd';
 
 import { ShareableMeta } from '../shareable-meta';
 import { Role, ServiceRole } from '../iam';
+import { DataAwsSubnetIds } from '@cdktf/provider-aws/lib/data-aws-subnet-ids';
+import { DataAwsSecurityGroups } from '@cdktf/provider-aws/lib/data-aws-security-groups';
+import { DataAwsVpc } from '@cdktf/provider-aws/lib/data-aws-vpc';
 
 export interface LambdaRoleConfig {
   arn?: string;
   statement?: iam.PolicyStatement[];
 }
 
-export interface LambdaConfig extends Omit<LambdaFunctionConfig, 'role'> {
+export interface LambdaConfig
+  extends Omit<LambdaFunctionConfig, 'role' | 'vpcConfig'> {
   logGroup?: Omit<CloudwatchLogGroupConfig, 'name' | 'namePrefix'>;
   role?: LambdaRoleConfig;
   alarm?: LambdaAlarmConfig;
@@ -61,6 +66,10 @@ export interface LambdaAlarmConfig
   statistic?: MetricStatistic;
 }
 
+export interface LambdaVpcConfig extends Partial<LambdaFunctionVpcConfig> {
+  vpcId?: string;
+}
+
 export class Lambda extends ShareableMeta {
   public static functionDefaults: Partial<LambdaFunctionConfig> = {
     memorySize: 128,
@@ -84,6 +93,7 @@ export class Lambda extends ShareableMeta {
   constructor(scope: Construct, id: string, config: LambdaConfig) {
     super(scope, id, config);
 
+    this.id = id;
     this.functionName = config.functionName;
     this.region = new DataAwsRegion(scope, `${id}-region`);
 
@@ -135,6 +145,7 @@ export class Lambda extends ShareableMeta {
     return this._logGroup;
   }
 
+  private id: string;
   private functionName: string;
   private region: DataAwsRegion;
   private _logGroup!: CloudwatchLogGroup;
@@ -142,6 +153,37 @@ export class Lambda extends ShareableMeta {
 
   public get role(): DataAwsIamRole | IamRole {
     return this._role;
+  }
+
+  public inVPC(config?: LambdaVpcConfig): Lambda {
+    let { subnetIds, securityGroupIds, vpcId } = config || {};
+
+    if (!config) {
+      const defaultVpc = new DataAwsVpc(this, `${this.id}-vpc`, {});
+      vpcId = defaultVpc.id;
+    }
+
+    if (vpcId) {
+      const subnets = new DataAwsSubnetIds(this, `${this.id}-subnets`, {
+        vpcId: vpcId,
+      });
+      subnetIds = subnetIds || subnets.ids;
+
+      const security = new DataAwsSecurityGroups(this, `${this.id}-sg`, {
+        filter: [{ name: 'vpc-id', values: [vpcId] }],
+      });
+      securityGroupIds = securityGroupIds || security.ids;
+    }
+
+    if (!subnetIds || !securityGroupIds) {
+      throw new Error(
+        'Must supply either no vpc config, a vpcId, or both subnetIds and securityGroupIds'
+      );
+    }
+
+
+    this.lambda.putVpcConfig({ subnetIds, securityGroupIds });
+    return this;
   }
 
   private buildRole(config: LambdaRoleConfig | undefined) {

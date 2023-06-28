@@ -157,14 +157,6 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
         "timeout": 3,
         "tracing_config": {
           "mode": "Active"
-        },
-        "vpc_config": {
-          "security_group_ids": [
-            "sg-7ca1556d"
-          ],
-          "subnet_ids": [
-            "subnet-362d0717"
-          ]
         }
       }
     }
@@ -274,7 +266,128 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
 }"
 `;
 
-exports[`cdk-constructs Lambda builds with minimal configuration 1`] = `
+exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-function_my-function-log-permissions_1D3E84D7": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_my-function-role-partition_7C5CD2BD": {
+      }
+    },
+    "aws_region": {
+      "my-function-region": {
+      }
+    },
+    "aws_security_groups": {
+      "my-function_my-function-sg_66D775D9": {
+        "filter": [
+          {
+            "name": "vpc-id",
+            "values": [
+              "vpc-6905200c"
+            ]
+          }
+        ]
+      }
+    },
+    "aws_subnet_ids": {
+      "my-function_my-function-subnets_B14C0666": {
+        "vpc_id": "vpc-6905200c"
+      }
+    }
+  },
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "my-function_my-function-logs_A4870A22": {
+        "name": "/aws/lambda/my-function",
+        "retention_in_days": 14
+      }
+    },
+    "aws_cloudwatch_metric_alarm": {
+      "my-function_my-function-alarm_EF5A6BA3": {
+        "alarm_actions": [
+        ],
+        "alarm_description": "Error alarm for the my-function Lambda function",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "comparison_operator": "GreaterThanThreshold",
+        "datapoints_to_alarm": 1,
+        "dimensions": {
+          "FunctionName": "my-function"
+        },
+        "evaluation_periods": 5,
+        "metric_name": "Errors",
+        "namespace": "AWS/Lambda",
+        "period": 60,
+        "statistic": "Sum",
+        "threshold": 0,
+        "treat_missing_data": "notBreaching"
+      }
+    },
+    "aws_iam_role": {
+      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+        "name": "lambda-role-my-function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "my-function_my-function-log-policy_78428521": {
+        "name": "lambda-logging-my-function",
+        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+      }
+    },
+    "aws_lambda_function": {
+      "my-function_0A1E7AB6": {
+        "depends_on": [
+          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+        ],
+        "function_name": "my-function",
+        "memory_size": 128,
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "timeout": 300,
+        "vpc_config": {
+          "security_group_ids": "\${data.aws_security_groups.my-function_my-function-sg_66D775D9.ids}",
+          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_my-function-subnets_B14C0666.ids)}"
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Lambda inVPC method builds in specific subnets 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
@@ -367,6 +480,342 @@ exports[`cdk-constructs Lambda builds with minimal configuration 1`] = `
         "function_name": "my-function",
         "memory_size": 128,
         "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "timeout": 300,
+        "vpc_config": {
+          "security_group_ids": [
+            "sg-7ca1556d"
+          ],
+          "subnet_ids": [
+            "subnet-362d0717"
+          ]
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Lambda inVPC method builds on default VPC 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-function_my-function-log-permissions_1D3E84D7": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_my-function-role-partition_7C5CD2BD": {
+      }
+    },
+    "aws_region": {
+      "my-function-region": {
+      }
+    },
+    "aws_security_groups": {
+      "my-function_my-function-sg_66D775D9": {
+        "filter": [
+          {
+            "name": "vpc-id",
+            "values": [
+              "\${data.aws_vpc.my-function_my-function-vpc_C1A3EA49.id}"
+            ]
+          }
+        ]
+      }
+    },
+    "aws_subnet_ids": {
+      "my-function_my-function-subnets_B14C0666": {
+        "vpc_id": "\${data.aws_vpc.my-function_my-function-vpc_C1A3EA49.id}"
+      }
+    },
+    "aws_vpc": {
+      "my-function_my-function-vpc_C1A3EA49": {
+      }
+    }
+  },
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "my-function_my-function-logs_A4870A22": {
+        "name": "/aws/lambda/my-function",
+        "retention_in_days": 14
+      }
+    },
+    "aws_cloudwatch_metric_alarm": {
+      "my-function_my-function-alarm_EF5A6BA3": {
+        "alarm_actions": [
+        ],
+        "alarm_description": "Error alarm for the my-function Lambda function",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "comparison_operator": "GreaterThanThreshold",
+        "datapoints_to_alarm": 1,
+        "dimensions": {
+          "FunctionName": "my-function"
+        },
+        "evaluation_periods": 5,
+        "metric_name": "Errors",
+        "namespace": "AWS/Lambda",
+        "period": 60,
+        "statistic": "Sum",
+        "threshold": 0,
+        "treat_missing_data": "notBreaching"
+      }
+    },
+    "aws_iam_role": {
+      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+        "name": "lambda-role-my-function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "my-function_my-function-log-policy_78428521": {
+        "name": "lambda-logging-my-function",
+        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+      }
+    },
+    "aws_lambda_function": {
+      "my-function_0A1E7AB6": {
+        "depends_on": [
+          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+        ],
+        "function_name": "my-function",
+        "memory_size": 128,
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "timeout": 300,
+        "vpc_config": {
+          "security_group_ids": "\${data.aws_security_groups.my-function_my-function-sg_66D775D9.ids}",
+          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_my-function-subnets_B14C0666.ids)}"
+        }
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Lambda with bare minimal required configuration builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-function_my-function-log-permissions_1D3E84D7": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_my-function-role-partition_7C5CD2BD": {
+      }
+    },
+    "aws_region": {
+      "my-function-region": {
+      }
+    }
+  },
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "my-function_my-function-logs_A4870A22": {
+        "name": "/aws/lambda/my-function",
+        "retention_in_days": 14
+      }
+    },
+    "aws_cloudwatch_metric_alarm": {
+      "my-function_my-function-alarm_EF5A6BA3": {
+        "alarm_actions": [
+        ],
+        "alarm_description": "Error alarm for the my-function Lambda function",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "comparison_operator": "GreaterThanThreshold",
+        "datapoints_to_alarm": 1,
+        "dimensions": {
+          "FunctionName": "my-function"
+        },
+        "evaluation_periods": 5,
+        "metric_name": "Errors",
+        "namespace": "AWS/Lambda",
+        "period": 60,
+        "statistic": "Sum",
+        "threshold": 0,
+        "treat_missing_data": "notBreaching"
+      }
+    },
+    "aws_iam_role": {
+      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+        "name": "lambda-role-my-function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "my-function_my-function-log-policy_78428521": {
+        "name": "lambda-logging-my-function",
+        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+      }
+    },
+    "aws_lambda_function": {
+      "my-function_0A1E7AB6": {
+        "depends_on": [
+          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+        ],
+        "function_name": "my-function",
+        "memory_size": 128,
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "timeout": 300
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-function_my-function-log-permissions_1D3E84D7": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_my-function-role-partition_7C5CD2BD": {
+      }
+    },
+    "aws_region": {
+      "my-function-region": {
+      }
+    }
+  },
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "my-function_my-function-logs_A4870A22": {
+        "name": "/aws/lambda/my-function",
+        "retention_in_days": 14
+      }
+    },
+    "aws_cloudwatch_metric_alarm": {
+      "my-function_my-function-alarm_EF5A6BA3": {
+        "alarm_actions": [
+        ],
+        "alarm_description": "Error alarm for the my-function Lambda function",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "comparison_operator": "GreaterThanThreshold",
+        "datapoints_to_alarm": 1,
+        "dimensions": {
+          "FunctionName": "my-function"
+        },
+        "evaluation_periods": 5,
+        "metric_name": "Errors",
+        "namespace": "AWS/Lambda",
+        "period": 60,
+        "statistic": "Sum",
+        "threshold": 0,
+        "treat_missing_data": "notBreaching"
+      }
+    },
+    "aws_iam_role": {
+      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+        "name": "lambda-role-my-function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "my-function_my-function-log-policy_78428521": {
+        "name": "lambda-logging-my-function",
+        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+      }
+    },
+    "aws_lambda_function": {
+      "my-function_0A1E7AB6": {
+        "depends_on": [
+          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+        ],
+        "function_name": "my-function",
+        "memory_size": 128,
+        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "runtime": "nodejs18.x",
+        "s3_bucket": "my-bucket",
+        "s3_key": "key/something.zip",
         "timeout": 300
       }
     }

@@ -11,19 +11,99 @@ import {
 } from '../lib/iam';
 import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
 import { DockerLambda, DockerLambdaConfig } from '../lib/lambda/docker-lambda';
-import { MetricStatistic } from '../lib/lambda/lambda';
+import { LambdaConfig, MetricStatistic } from '../lib/lambda/lambda';
 
 const fakeArn = 'arn:aws:service:us-west-2:123456789012:entity';
 const fakeSecurityGroup = 'sg-7ca1556d';
 const fakeSubnet = 'subnet-362d0717';
+const fakeVpc = 'vpc-6905200c';
 
 describe('cdk-constructs', () => {
   describe('Lambda', () => {
-    it('builds with minimal configuration', () => {
-      const synth = Testing.synthScope((scope) => {
-        new Lambda(scope, 'my-function', { functionName: 'my-function' });
+    describe('with bare minimal required configuration', () => {
+      const cfg = { functionName: 'my-function' };
+
+      it('builds', () => {
+        const synth = Testing.synthScope((scope) => {
+          new Lambda(scope, 'my-function', cfg);
+        });
+        expect(synth).toMatchSnapshot();
       });
-      expect(synth).toMatchSnapshot();
+
+      it('is not valid terraform', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        new Lambda(stack, 'id', cfg);
+
+        expect(Testing.fullSynth(stack)).not.toBeValidTerraform();
+      });
+    });
+
+    describe('with s3 package specified', () => {
+      const cfg: LambdaConfig = {
+        functionName: 'my-function',
+        s3Bucket: 'my-bucket',
+        s3Key: 'key/something.zip',
+        runtime: 'nodejs18.x'
+      };
+
+      it('builds', () => {
+        const synth = Testing.synthScope((scope) => {
+          new Lambda(scope, 'my-function', cfg);
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('is valid terraform', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        new Lambda(stack, 'id', cfg);
+
+        expect(Testing.fullSynth(stack)).toBeValidTerraform();
+      });
+
+      it('is valid terraform in a VPC', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        const lambda = new Lambda(stack, 'id', cfg);
+        lambda.inVPC();
+
+        expect(Testing.fullSynth(stack)).toBeValidTerraform();
+      })
+    });
+
+    describe('inVPC method', () => {
+      const cfg = { functionName: 'my-function' };
+
+      it('builds on default VPC', () => {
+        const synth = Testing.synthScope((scope) => {
+          const lambda = new Lambda(scope, 'my-function', cfg);
+          lambda.inVPC();
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('builds in looked up VPC', () => {
+        const synth = Testing.synthScope((scope) => {
+          const lambda = new Lambda(scope, 'my-function', cfg);
+          lambda.inVPC({ vpcId: fakeVpc });
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('builds in specific subnets', () => {
+        const synth = Testing.synthScope((scope) => {
+          const lambda = new Lambda(scope, 'my-function', cfg);
+          lambda.inVPC({
+            securityGroupIds: [fakeSecurityGroup],
+            subnetIds: [fakeSubnet],
+          });
+        });
+        expect(synth).toMatchSnapshot();
+      });
     });
   });
 
@@ -80,10 +160,6 @@ describe('cdk-constructs', () => {
         tags: { tag: 'value' },
         timeout: 3,
         tracingConfig: { mode: 'Active' },
-        vpcConfig: {
-          securityGroupIds: [fakeSecurityGroup],
-          subnetIds: [fakeSubnet],
-        },
         logGroup: {
           skipDestroy: false,
           retentionInDays: 7,
@@ -178,35 +254,6 @@ describe('cdk-constructs', () => {
     });
   });
 
-  //   it("Tests a combination of resources", () => {
-  //     expect(
-  //       Testing.synthScope((stack) => {
-  //         new TestDataSource(stack, "test-data-source", {
-  //           name: "foo",
-  //         });
-
-  //         new TestResource(stack, "test-resource", {
-  //           name: "bar",
-  //         });
-  //       })
-  //     ).toMatchInlineSnapshot();
-  //   });
-  // });
-
-  // describe("Checking validity", () => {
-  //   it("check if the produced terraform configuration is valid", () => {
-  //     const app = Testing.app();
-  //     const stack = new TerraformStack(app, "test");
-
-  //     new TestDataSource(stack, "test-data-source", {
-  //       name: "foo",
-  //     });
-
-  //     new TestResource(stack, "test-resource", {
-  //       name: "bar",
-  //     });
-  //     expect(Testing.fullSynth(app)).toBeValidTerraform();
-  //   });
 
   //   it("check if this can be planned", () => {
   //     const app = Testing.app();
