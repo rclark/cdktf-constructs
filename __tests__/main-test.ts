@@ -17,6 +17,7 @@ import {
   PrincipalType,
   Role,
 } from '../lib/iam';
+import { PrivateRepository, PrivateRepositoryConfig } from '../lib/ecr';
 import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
 import * as iam from 'iam-floyd';
 
@@ -338,6 +339,32 @@ describe('cdk-constructs', () => {
           const stack = new TerraformStack(app, 'test');
           new AwsProvider(stack, 'aws', { region: 'us-west-2' });
           new Role(stack, 'my-role', cfg);
+
+          expect(Testing.fullSynth(stack)).toBeValidTerraform();
+        });
+      });
+    });
+  });
+
+  describe('Repository', () => {
+    describe('with minimal configuration', () => {
+      const cfg: PrivateRepositoryConfig = { name: 'my-repo' };
+
+      describe('allowing lambda access', () => {
+        it('builds', () => {
+          const synth = Testing.synthScope((scope) => {
+            const repo = new PrivateRepository(scope, 'my-role', cfg);
+            repo.allowLambdaAccess();
+          });
+          expect(synth).toMatchSnapshot();
+        });
+
+        it('makes valid terraform', () => {
+          const app = Testing.app();
+          const stack = new TerraformStack(app, 'test');
+          new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+          const repo = new PrivateRepository(stack, 'my-role', cfg);
+          repo.allowLambdaAccess();
 
           expect(Testing.fullSynth(stack)).toBeValidTerraform();
         });

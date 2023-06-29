@@ -909,6 +909,47 @@ exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
 }"
 `;
 
+exports[`cdk-constructs Repository with minimal configuration allowing lambda access builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-role_my-role-doc_8CB0B572": {
+        "statement": [
+          {
+            "actions": [
+              "ecr:BatchGetImage",
+              "ecr:GetDownloadUrlForLayer"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "resource": {
+    "aws_ecr_repository": {
+      "my-role_FA4855CE": {
+        "name": "my-repo"
+      }
+    },
+    "aws_ecr_repository_policy": {
+      "my-role_my-role-policy_516BBFB1": {
+        "policy": "\${data.aws_iam_policy_document.my-role_my-role-doc_8CB0B572.json}",
+        "repository": "\${aws_ecr_repository.my-role_FA4855CE.name}"
+      }
+    }
+  }
+}"
+`;
+
 exports[`cdk-constructs Role with minimal configuration a new role builds 1`] = `
 "{
   "data": {
