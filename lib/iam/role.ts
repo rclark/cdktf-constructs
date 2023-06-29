@@ -40,7 +40,7 @@ export interface ExistingRoleConfig extends TerraformMetaArguments {
 interface IRoleConfig extends TerraformMetaArguments {
   name?: string;
   arn?: string;
-  statement?: iam.PolicyStatement[];
+  policies?: iam.PolicyStatement[];
   principals?: Principal[];
 }
 
@@ -89,10 +89,10 @@ export class Role extends ShareableMeta {
       );
     }
 
-    if (config.statement) {
+    if (config.policies) {
       const policy = {
         Version: '2012-10-17',
-        Statement: config.statement,
+        Statement: config.policies,
       };
 
       new IamRolePolicy(

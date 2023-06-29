@@ -180,6 +180,11 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
         "name": "lambda-logging-my-function",
         "policy": "\${data.aws_iam_policy_document.id_my-function-log-permissions_8C1AFB0E.json}",
         "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}"
+      },
+      "id_my-function-role_my-function-role-user-policy_13826409": {
+        "name": "user-permissions-my-function-role",
+        "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
+        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}"
       }
     },
     "aws_lambda_function": {
@@ -945,6 +950,69 @@ exports[`cdk-constructs Role with minimal configuration an existing role builds 
     "aws_iam_role": {
       "my-role_my-role-external-role_747D99F6": {
         "name": "developer"
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Role with policy statements a new role builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-role_my-role-assume_AC40947D": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "arn:aws:iam::1234567890:user/chuck"
+                ],
+                "type": "AWS"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "resource": {
+    "aws_iam_role": {
+      "my-role_my-role-new-role_137CD40C": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_my-role-assume_AC40947D.json}",
+        "name": "new-role"
+      }
+    },
+    "aws_iam_role_policy": {
+      "my-role_my-role-user-policy_0B5BF5C7": {
+        "name": "user-permissions-my-role",
+        "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
+        "role": "\${aws_iam_role.my-role_my-role-new-role_137CD40C.arn}"
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Role with policy statements an existing role builds 1`] = `
+"{
+  "data": {
+    "aws_iam_role": {
+      "my-role_my-role-external-role_747D99F6": {
+        "name": "developer"
+      }
+    }
+  },
+  "resource": {
+    "aws_iam_role_policy": {
+      "my-role_my-role-user-policy_0B5BF5C7": {
+        "name": "user-permissions-my-role",
+        "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
+        "role": "\${data.aws_iam_role.my-role_my-role-external-role_747D99F6.arn}"
       }
     }
   }

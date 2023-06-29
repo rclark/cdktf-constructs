@@ -289,6 +289,60 @@ describe('cdk-constructs', () => {
         });
       });
     });
+
+    describe('with policy statements', () => {
+      describe('a new role', () => {
+        const cfg: NewRoleConfig = {
+          name: 'new-role',
+          principals: [
+            {
+              type: PrincipalType.AWS,
+              identifiers: ['arn:aws:iam::1234567890:user/chuck'],
+            },
+          ],
+          policies: [new iam.S3().allow().allActions().on(fakeArn)],
+        };
+
+        it('builds', () => {
+          const synth = Testing.synthScope((scope) => {
+            new Role(scope, 'my-role', cfg);
+          });
+          expect(synth).toMatchSnapshot();
+        });
+
+        it('makes valid terraform', () => {
+          const app = Testing.app();
+          const stack = new TerraformStack(app, 'test');
+          new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+          new Role(stack, 'my-role', cfg);
+
+          expect(Testing.fullSynth(stack)).toBeValidTerraform();
+        });
+      });
+
+      describe('an existing role', () => {
+        const cfg: ExistingRoleConfig = {
+          arn: 'arn:aws:iam::1234567890:role/developer',
+          policies: [new iam.S3().allow().allActions().on(fakeArn)],
+        };
+
+        it('builds', () => {
+          const synth = Testing.synthScope((scope) => {
+            new Role(scope, 'my-role', cfg);
+          });
+          expect(synth).toMatchSnapshot();
+        });
+
+        it('makes valid terraform', () => {
+          const app = Testing.app();
+          const stack = new TerraformStack(app, 'test');
+          new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+          new Role(stack, 'my-role', cfg);
+
+          expect(Testing.fullSynth(stack)).toBeValidTerraform();
+        });
+      });
+    });
   });
 
   //   it("check if this can be planned", () => {
