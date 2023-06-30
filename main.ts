@@ -26,7 +26,4 @@ const app = new App();
 const stack = new Example(app, 'example-stack');
 app.synth();
 
-// If you were to just `ts-node` run this file with the BUILD env var set,
-// without using cdktf, the .build() method would include steps to build the
-// dockerfile and upload it to ECR -- but the ECR repo might not exist yet.
 if (process.env.BUILD) stack.lambda.build().catch((err) => console.error(err));
