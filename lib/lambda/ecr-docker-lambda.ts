@@ -51,7 +51,12 @@ export class EcrDockerLambda extends DockerLambda {
     const image = `${uri}:${this.gitsha}`;
 
     const auth = await ecr.getAuthorizationToken({});
-    const token = Buffer.from(auth.authorizationData![0].authorizationToken!, 'base64').toString().split(':')[1];
+    const token = Buffer.from(
+      auth.authorizationData![0].authorizationToken!,
+      'base64'
+    )
+      .toString()
+      .split(':')[1];
 
     await run(
       'docker',
@@ -66,12 +71,14 @@ export class EcrDockerLambda extends DockerLambda {
     await run(
       'docker',
       'login',
-      '--username', 'AWS',
-      '--password', token,
+      '--username',
+      'AWS',
+      '--password',
+      token,
       uri.split('/')[0]
-    )
+    );
 
-    await run('docker', 'push', image)
+    await run('docker', 'push', image);
   }
 
   removeResources(): void {
