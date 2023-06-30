@@ -33,6 +33,7 @@ export class EcrDockerLambda extends DockerLambda {
 
     this.repo = new PrivateRepository(this, EcrDockerLambda.repoId, {
       name: this.name,
+      forceDelete: true,
     }).allowLambdaAccess();
 
     this.lambda.imageUri = `${this.repo.repository.repositoryUrl}:${config.gitsha}`;
