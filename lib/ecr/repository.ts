@@ -9,12 +9,12 @@ import {
 } from '@cdktf/provider-aws/lib/ecr-repository';
 import { EcrRepositoryPolicy } from '@cdktf/provider-aws/lib/ecr-repository-policy';
 
-import { ShareableMeta } from '../shareable-meta';
 import { PrincipalType } from '../iam';
+import { BaseConstruct } from '../core';
 
 export interface PrivateRepositoryConfig extends EcrRepositoryConfig {}
 
-export class PrivateRepository extends ShareableMeta {
+export class PrivateRepository extends BaseConstruct {
   public repository: EcrRepository;
   public policy: EcrRepositoryPolicy;
   public policyDoc: DataAwsIamPolicyDocument;
@@ -23,7 +23,7 @@ export class PrivateRepository extends ShareableMeta {
   private statements: DataAwsIamPolicyDocumentStatement[];
 
   constructor(scope: Construct, id: string, config: PrivateRepositoryConfig) {
-    super(scope, id, config);
+    super(scope, id);
 
     this.id = id;
     this.statements = [];
@@ -50,5 +50,11 @@ export class PrivateRepository extends ShareableMeta {
     this.policyDoc.putStatement(this.statements);
 
     return this;
+  }
+
+  removeResources(): void {
+    this.node.tryRemoveChild(this.repository.id);
+    this.node.tryRemoveChild(this.policy.id);
+    this.node.tryRemoveChild(this.policyDoc.id);
   }
 }

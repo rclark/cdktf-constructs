@@ -4,7 +4,7 @@ exports[`cdk-constructs BundledLambda with minimal configuration builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "id_my-function-log-permissions_8C1AFB0E": {
+      "id_log-doc_CF88F1C2": {
         "statement": [
           {
             "actions": [
@@ -12,12 +12,12 @@ exports[`cdk-constructs BundledLambda with minimal configuration builds 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.id_id-logs_E7E8A5B1.arn}"
+              "\${aws_cloudwatch_log_group.id_logs_A5878EE1.arn}"
             ]
           }
         ]
       },
-      "id_my-function-role_my-function-role-assume_3B36031C": {
+      "id_role_assume_AD51AF17": {
         "statement": [
           {
             "actions": [
@@ -37,27 +37,27 @@ exports[`cdk-constructs BundledLambda with minimal configuration builds 1`] = `
       }
     },
     "aws_partition": {
-      "id_my-function-role-partition_C7AF5BB8": {
+      "id_role-partition_A9481A3C": {
       }
     },
     "aws_region": {
-      "id-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "id_id-logs_E7E8A5B1": {
+      "id_logs_A5878EE1": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "id_id-alarm_EB9777B2": {
+      "id_alarm_9DA036EF": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.id-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -73,27 +73,27 @@ exports[`cdk-constructs BundledLambda with minimal configuration builds 1`] = `
       }
     },
     "aws_iam_role": {
-      "id_my-function-role_my-function-role-new-role_2EB66BDC": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.id_my-function-role_my-function-role-assume_3B36031C.json}",
+      "id_role_new_6882EA3E": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.id_role_assume_AD51AF17.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "id_my-function-log-policy_EDED9500": {
+      "id_policy_5819D0AF": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.id_my-function-log-permissions_8C1AFB0E.json}",
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}"
+        "policy": "\${data.aws_iam_policy_document.id_log-doc_CF88F1C2.json}",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}"
       }
     },
     "aws_lambda_function": {
-      "id_6B6273EC": {
+      "id_fn_BC9D0F34": {
         "depends_on": [
-          "aws_cloudwatch_log_group.id_id-logs_E7E8A5B1"
+          "aws_cloudwatch_log_group.id_logs_A5878EE1"
         ],
         "function_name": "my-function",
         "handler": "index.handler",
         "memory_size": 128,
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}",
         "runtime": "nodejs18.x",
         "s3_bucket": "my-bucket",
         "s3_key": "some/key.zip",
@@ -108,7 +108,7 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "id_my-function-log-permissions_8C1AFB0E": {
+      "id_log-doc_CF88F1C2": {
         "statement": [
           {
             "actions": [
@@ -116,25 +116,25 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.id_id-logs_E7E8A5B1.arn}"
+              "\${aws_cloudwatch_log_group.id_logs_A5878EE1.arn}"
             ]
           }
         ]
       }
     },
     "aws_iam_role": {
-      "id_my-function-role_my-function-role-external-role_6B2F9127": {
+      "id_role_external_BA4DD1A9": {
         "name": "role-name"
       }
     },
     "aws_region": {
-      "id-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "id_id-logs_E7E8A5B1": {
+      "id_logs_A5878EE1": {
         "kms_key_id": "arn:aws:service:us-west-2:123456789012:entity",
         "name": "/aws/lambda/my-function",
         "retention_in_days": 7,
@@ -145,13 +145,13 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "id_id-alarm_EB9777B2": {
+      "id_alarm_9DA036EF": {
         "actions_enabled": true,
         "alarm_actions": [
           "arn:aws:service:us-west-2:123456789012:entity"
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.id-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanOrEqualToThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -176,19 +176,19 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
       }
     },
     "aws_iam_role_policy": {
-      "id_my-function-log-policy_EDED9500": {
+      "id_policy_5819D0AF": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.id_my-function-log-permissions_8C1AFB0E.json}",
-        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}"
+        "policy": "\${data.aws_iam_policy_document.id_log-doc_CF88F1C2.json}",
+        "role": "\${data.aws_iam_role.id_role_external_BA4DD1A9.arn}"
       },
-      "id_my-function-role_my-function-role-user-policy_13826409": {
-        "name": "user-permissions-my-function-role",
+      "id_role_user_6870A479": {
+        "name": "user-permissions-role",
         "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
-        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}"
+        "role": "\${data.aws_iam_role.id_role_external_BA4DD1A9.arn}"
       }
     },
     "aws_lambda_function": {
-      "id_6B6273EC": {
+      "id_fn_BC9D0F34": {
         "architectures": [
           "x86_64"
         ],
@@ -197,7 +197,7 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
           "target_arn": "arn:aws:service:us-west-2:123456789012:entity"
         },
         "depends_on": [
-          "aws_cloudwatch_log_group.id_id-logs_E7E8A5B1"
+          "aws_cloudwatch_log_group.id_logs_A5878EE1"
         ],
         "description": "described",
         "environment": {
@@ -235,7 +235,7 @@ exports[`cdk-constructs DockerLambda with maximal configuration builds 1`] = `
           "sg-7ca1556d"
         ],
         "reserved_concurrent_executions": -1,
-        "role": "\${data.aws_iam_role.id_my-function-role_my-function-role-external-role_6B2F9127.arn}",
+        "role": "\${data.aws_iam_role.id_role_external_BA4DD1A9.arn}",
         "skip_destroy": false,
         "tags": {
           "tag": "value"
@@ -254,7 +254,7 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "id_my-function-log-permissions_8C1AFB0E": {
+      "id_log-doc_CF88F1C2": {
         "statement": [
           {
             "actions": [
@@ -262,12 +262,12 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.id_id-logs_E7E8A5B1.arn}"
+              "\${aws_cloudwatch_log_group.id_logs_A5878EE1.arn}"
             ]
           }
         ]
       },
-      "id_my-function-role_my-function-role-assume_3B36031C": {
+      "id_role_assume_AD51AF17": {
         "statement": [
           {
             "actions": [
@@ -287,27 +287,27 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
       }
     },
     "aws_partition": {
-      "id_my-function-role-partition_C7AF5BB8": {
+      "id_role-partition_A9481A3C": {
       }
     },
     "aws_region": {
-      "id-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "id_id-logs_E7E8A5B1": {
+      "id_logs_A5878EE1": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "id_id-alarm_EB9777B2": {
+      "id_alarm_9DA036EF": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.id-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -323,28 +323,28 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
       }
     },
     "aws_iam_role": {
-      "id_my-function-role_my-function-role-new-role_2EB66BDC": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.id_my-function-role_my-function-role-assume_3B36031C.json}",
+      "id_role_new_6882EA3E": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.id_role_assume_AD51AF17.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "id_my-function-log-policy_EDED9500": {
+      "id_policy_5819D0AF": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.id_my-function-log-permissions_8C1AFB0E.json}",
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}"
+        "policy": "\${data.aws_iam_policy_document.id_log-doc_CF88F1C2.json}",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}"
       }
     },
     "aws_lambda_function": {
-      "id_6B6273EC": {
+      "id_fn_BC9D0F34": {
         "depends_on": [
-          "aws_cloudwatch_log_group.id_id-logs_E7E8A5B1"
+          "aws_cloudwatch_log_group.id_logs_A5878EE1"
         ],
         "function_name": "my-function",
         "image_uri": "public.ecr.aws/lambda/provided:al2",
         "memory_size": 128,
         "package_type": "Image",
-        "role": "\${aws_iam_role.id_my-function-role_my-function-role-new-role_2EB66BDC.arn}",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}",
         "timeout": 300
       }
     }
@@ -352,11 +352,11 @@ exports[`cdk-constructs DockerLambda with minimal configuration builds 1`] = `
 }"
 `;
 
-exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
+exports[`cdk-constructs EcrDockerLambda with gitsha builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-log-permissions_1D3E84D7": {
+      "id_log-doc_CF88F1C2": {
         "statement": [
           {
             "actions": [
@@ -364,12 +364,31 @@ exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+              "\${aws_cloudwatch_log_group.id_logs_A5878EE1.arn}"
             ]
           }
         ]
       },
-      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+      "id_repo_repo-doc_FA876B4C": {
+        "statement": [
+          {
+            "actions": [
+              "ecr:BatchGetImage",
+              "ecr:GetDownloadUrlForLayer"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      },
+      "id_role_assume_AD51AF17": {
         "statement": [
           {
             "actions": [
@@ -389,15 +408,177 @@ exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
       }
     },
     "aws_partition": {
-      "my-function_my-function-role-partition_7C5CD2BD": {
+      "id_role-partition_A9481A3C": {
       }
     },
     "aws_region": {
-      "my-function-region": {
+      "region": {
+      }
+    }
+  },
+  "resource": {
+    "aws_cloudwatch_log_group": {
+      "id_logs_A5878EE1": {
+        "name": "/aws/lambda/my-function",
+        "retention_in_days": 14
+      }
+    },
+    "aws_cloudwatch_metric_alarm": {
+      "id_alarm_9DA036EF": {
+        "alarm_actions": [
+        ],
+        "alarm_description": "Error alarm for the my-function Lambda function",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
+        "comparison_operator": "GreaterThanThreshold",
+        "datapoints_to_alarm": 1,
+        "dimensions": {
+          "FunctionName": "my-function"
+        },
+        "evaluation_periods": 5,
+        "metric_name": "Errors",
+        "namespace": "AWS/Lambda",
+        "period": 60,
+        "statistic": "Sum",
+        "threshold": 0,
+        "treat_missing_data": "notBreaching"
+      }
+    },
+    "aws_ecr_repository": {
+      "id_repo_4AFBB471": {
+        "name": "my-function"
+      }
+    },
+    "aws_ecr_repository_policy": {
+      "id_repo_repo-policy_AA019073": {
+        "policy": "\${data.aws_iam_policy_document.id_repo_repo-doc_FA876B4C.json}",
+        "repository": "\${aws_ecr_repository.id_repo_4AFBB471.name}"
+      }
+    },
+    "aws_iam_role": {
+      "id_role_new_6882EA3E": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.id_role_assume_AD51AF17.json}",
+        "name": "lambda-role-my-function"
+      }
+    },
+    "aws_iam_role_policy": {
+      "id_policy_5819D0AF": {
+        "name": "lambda-logging-my-function",
+        "policy": "\${data.aws_iam_policy_document.id_log-doc_CF88F1C2.json}",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}"
+      }
+    },
+    "aws_lambda_function": {
+      "id_fn_BC9D0F34": {
+        "depends_on": [
+          "aws_cloudwatch_log_group.id_logs_A5878EE1"
+        ],
+        "function_name": "my-function",
+        "image_uri": "\${aws_ecr_repository.id_repo_4AFBB471.repository_url}:123abc",
+        "memory_size": 128,
+        "package_type": "Image",
+        "role": "\${aws_iam_role.id_role_new_6882EA3E.arn}",
+        "timeout": 300
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs EcrDockerLambda with minimal configuration builds 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "id_repo_repo-doc_FA876B4C": {
+        "statement": [
+          {
+            "actions": [
+              "ecr:BatchGetImage",
+              "ecr:GetDownloadUrlForLayer"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "id_role-partition_A9481A3C": {
+      }
+    },
+    "aws_region": {
+      "region": {
+      }
+    }
+  },
+  "resource": {
+    "aws_ecr_repository": {
+      "id_repo_4AFBB471": {
+        "name": "my-function"
+      }
+    },
+    "aws_ecr_repository_policy": {
+      "id_repo_repo-policy_AA019073": {
+        "policy": "\${data.aws_iam_policy_document.id_repo_repo-doc_FA876B4C.json}",
+        "repository": "\${aws_ecr_repository.id_repo_4AFBB471.name}"
+      }
+    }
+  }
+}"
+`;
+
+exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
+"{
+  "data": {
+    "aws_iam_policy_document": {
+      "my-function_log-doc_9434393F": {
+        "statement": [
+          {
+            "actions": [
+              "logs:*"
+            ],
+            "effect": "Allow",
+            "resources": [
+              "\${aws_cloudwatch_log_group.my-function_logs_A567E0ED.arn}"
+            ]
+          }
+        ]
+      },
+      "my-function_role_assume_9248D456": {
+        "statement": [
+          {
+            "actions": [
+              "sts:AssumeRole"
+            ],
+            "effect": "Allow",
+            "principals": [
+              {
+                "identifiers": [
+                  "lambda.amazonaws.com"
+                ],
+                "type": "Service"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "aws_partition": {
+      "my-function_role-partition_240AEE8B": {
+      }
+    },
+    "aws_region": {
+      "region": {
       }
     },
     "aws_security_groups": {
-      "my-function_my-function-sg_66D775D9": {
+      "my-function_sgs_2F698D33": {
         "filter": [
           {
             "name": "vpc-id",
@@ -409,24 +590,24 @@ exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
       }
     },
     "aws_subnet_ids": {
-      "my-function_my-function-subnets_B14C0666": {
+      "my-function_subnets_5C0A22E2": {
         "vpc_id": "vpc-6905200c"
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "my-function_my-function-logs_A4870A22": {
+      "my-function_logs_A567E0ED": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "my-function_my-function-alarm_EF5A6BA3": {
+      "my-function_alarm_E011EE05": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -442,30 +623,30 @@ exports[`cdk-constructs Lambda inVPC method builds in looked up VPC 1`] = `
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+      "my-function_role_new_0965544D": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_role_assume_9248D456.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "my-function_my-function-log-policy_78428521": {
+      "my-function_policy_05AEED31": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+        "policy": "\${data.aws_iam_policy_document.my-function_log-doc_9434393F.json}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}"
       }
     },
     "aws_lambda_function": {
-      "my-function_0A1E7AB6": {
+      "my-function_fn_E1D3A6DF": {
         "depends_on": [
-          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+          "aws_cloudwatch_log_group.my-function_logs_A567E0ED"
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}",
         "timeout": 300,
         "vpc_config": {
-          "security_group_ids": "\${data.aws_security_groups.my-function_my-function-sg_66D775D9.ids}",
-          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_my-function-subnets_B14C0666.ids)}"
+          "security_group_ids": "\${data.aws_security_groups.my-function_sgs_2F698D33.ids}",
+          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_subnets_5C0A22E2.ids)}"
         }
       }
     }
@@ -477,7 +658,7 @@ exports[`cdk-constructs Lambda inVPC method builds in specific subnets 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-log-permissions_1D3E84D7": {
+      "my-function_log-doc_9434393F": {
         "statement": [
           {
             "actions": [
@@ -485,12 +666,12 @@ exports[`cdk-constructs Lambda inVPC method builds in specific subnets 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+              "\${aws_cloudwatch_log_group.my-function_logs_A567E0ED.arn}"
             ]
           }
         ]
       },
-      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+      "my-function_role_assume_9248D456": {
         "statement": [
           {
             "actions": [
@@ -510,27 +691,27 @@ exports[`cdk-constructs Lambda inVPC method builds in specific subnets 1`] = `
       }
     },
     "aws_partition": {
-      "my-function_my-function-role-partition_7C5CD2BD": {
+      "my-function_role-partition_240AEE8B": {
       }
     },
     "aws_region": {
-      "my-function-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "my-function_my-function-logs_A4870A22": {
+      "my-function_logs_A567E0ED": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "my-function_my-function-alarm_EF5A6BA3": {
+      "my-function_alarm_E011EE05": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -546,26 +727,26 @@ exports[`cdk-constructs Lambda inVPC method builds in specific subnets 1`] = `
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+      "my-function_role_new_0965544D": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_role_assume_9248D456.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "my-function_my-function-log-policy_78428521": {
+      "my-function_policy_05AEED31": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+        "policy": "\${data.aws_iam_policy_document.my-function_log-doc_9434393F.json}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}"
       }
     },
     "aws_lambda_function": {
-      "my-function_0A1E7AB6": {
+      "my-function_fn_E1D3A6DF": {
         "depends_on": [
-          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+          "aws_cloudwatch_log_group.my-function_logs_A567E0ED"
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}",
         "timeout": 300,
         "vpc_config": {
           "security_group_ids": [
@@ -585,7 +766,7 @@ exports[`cdk-constructs Lambda inVPC method builds on default VPC 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-log-permissions_1D3E84D7": {
+      "my-function_log-doc_9434393F": {
         "statement": [
           {
             "actions": [
@@ -593,12 +774,12 @@ exports[`cdk-constructs Lambda inVPC method builds on default VPC 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+              "\${aws_cloudwatch_log_group.my-function_logs_A567E0ED.arn}"
             ]
           }
         ]
       },
-      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+      "my-function_role_assume_9248D456": {
         "statement": [
           {
             "actions": [
@@ -618,48 +799,48 @@ exports[`cdk-constructs Lambda inVPC method builds on default VPC 1`] = `
       }
     },
     "aws_partition": {
-      "my-function_my-function-role-partition_7C5CD2BD": {
+      "my-function_role-partition_240AEE8B": {
       }
     },
     "aws_region": {
-      "my-function-region": {
+      "region": {
       }
     },
     "aws_security_groups": {
-      "my-function_my-function-sg_66D775D9": {
+      "my-function_sgs_2F698D33": {
         "filter": [
           {
             "name": "vpc-id",
             "values": [
-              "\${data.aws_vpc.my-function_my-function-vpc_C1A3EA49.id}"
+              "\${data.aws_vpc.my-function_vpc_98ADECDA.id}"
             ]
           }
         ]
       }
     },
     "aws_subnet_ids": {
-      "my-function_my-function-subnets_B14C0666": {
-        "vpc_id": "\${data.aws_vpc.my-function_my-function-vpc_C1A3EA49.id}"
+      "my-function_subnets_5C0A22E2": {
+        "vpc_id": "\${data.aws_vpc.my-function_vpc_98ADECDA.id}"
       }
     },
     "aws_vpc": {
-      "my-function_my-function-vpc_C1A3EA49": {
+      "my-function_vpc_98ADECDA": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "my-function_my-function-logs_A4870A22": {
+      "my-function_logs_A567E0ED": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "my-function_my-function-alarm_EF5A6BA3": {
+      "my-function_alarm_E011EE05": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -675,30 +856,30 @@ exports[`cdk-constructs Lambda inVPC method builds on default VPC 1`] = `
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+      "my-function_role_new_0965544D": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_role_assume_9248D456.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "my-function_my-function-log-policy_78428521": {
+      "my-function_policy_05AEED31": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+        "policy": "\${data.aws_iam_policy_document.my-function_log-doc_9434393F.json}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}"
       }
     },
     "aws_lambda_function": {
-      "my-function_0A1E7AB6": {
+      "my-function_fn_E1D3A6DF": {
         "depends_on": [
-          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+          "aws_cloudwatch_log_group.my-function_logs_A567E0ED"
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}",
         "timeout": 300,
         "vpc_config": {
-          "security_group_ids": "\${data.aws_security_groups.my-function_my-function-sg_66D775D9.ids}",
-          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_my-function-subnets_B14C0666.ids)}"
+          "security_group_ids": "\${data.aws_security_groups.my-function_sgs_2F698D33.ids}",
+          "subnet_ids": "\${tolist(data.aws_subnet_ids.my-function_subnets_5C0A22E2.ids)}"
         }
       }
     }
@@ -710,7 +891,7 @@ exports[`cdk-constructs Lambda with bare minimal required configuration builds 1
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-log-permissions_1D3E84D7": {
+      "my-function_log-doc_9434393F": {
         "statement": [
           {
             "actions": [
@@ -718,12 +899,12 @@ exports[`cdk-constructs Lambda with bare minimal required configuration builds 1
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+              "\${aws_cloudwatch_log_group.my-function_logs_A567E0ED.arn}"
             ]
           }
         ]
       },
-      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+      "my-function_role_assume_9248D456": {
         "statement": [
           {
             "actions": [
@@ -743,27 +924,27 @@ exports[`cdk-constructs Lambda with bare minimal required configuration builds 1
       }
     },
     "aws_partition": {
-      "my-function_my-function-role-partition_7C5CD2BD": {
+      "my-function_role-partition_240AEE8B": {
       }
     },
     "aws_region": {
-      "my-function-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "my-function_my-function-logs_A4870A22": {
+      "my-function_logs_A567E0ED": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "my-function_my-function-alarm_EF5A6BA3": {
+      "my-function_alarm_E011EE05": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -779,26 +960,26 @@ exports[`cdk-constructs Lambda with bare minimal required configuration builds 1
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+      "my-function_role_new_0965544D": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_role_assume_9248D456.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "my-function_my-function-log-policy_78428521": {
+      "my-function_policy_05AEED31": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+        "policy": "\${data.aws_iam_policy_document.my-function_log-doc_9434393F.json}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}"
       }
     },
     "aws_lambda_function": {
-      "my-function_0A1E7AB6": {
+      "my-function_fn_E1D3A6DF": {
         "depends_on": [
-          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+          "aws_cloudwatch_log_group.my-function_logs_A567E0ED"
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}",
         "timeout": 300
       }
     }
@@ -810,7 +991,7 @@ exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-function_my-function-log-permissions_1D3E84D7": {
+      "my-function_log-doc_9434393F": {
         "statement": [
           {
             "actions": [
@@ -818,12 +999,12 @@ exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
             ],
             "effect": "Allow",
             "resources": [
-              "\${aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22.arn}"
+              "\${aws_cloudwatch_log_group.my-function_logs_A567E0ED.arn}"
             ]
           }
         ]
       },
-      "my-function_my-function-role_my-function-role-assume_4F65D8FD": {
+      "my-function_role_assume_9248D456": {
         "statement": [
           {
             "actions": [
@@ -843,27 +1024,27 @@ exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
       }
     },
     "aws_partition": {
-      "my-function_my-function-role-partition_7C5CD2BD": {
+      "my-function_role-partition_240AEE8B": {
       }
     },
     "aws_region": {
-      "my-function-region": {
+      "region": {
       }
     }
   },
   "resource": {
     "aws_cloudwatch_log_group": {
-      "my-function_my-function-logs_A4870A22": {
+      "my-function_logs_A567E0ED": {
         "name": "/aws/lambda/my-function",
         "retention_in_days": 14
       }
     },
     "aws_cloudwatch_metric_alarm": {
-      "my-function_my-function-alarm_EF5A6BA3": {
+      "my-function_alarm_E011EE05": {
         "alarm_actions": [
         ],
         "alarm_description": "Error alarm for the my-function Lambda function",
-        "alarm_name": "lambda-errors-my-function-\${data.aws_region.my-function-region.name}",
+        "alarm_name": "lambda-errors-my-function-\${data.aws_region.region.name}",
         "comparison_operator": "GreaterThanThreshold",
         "datapoints_to_alarm": 1,
         "dimensions": {
@@ -879,26 +1060,26 @@ exports[`cdk-constructs Lambda with s3 package specified builds 1`] = `
       }
     },
     "aws_iam_role": {
-      "my-function_my-function-role_my-function-role-new-role_EF570E59": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_my-function-role_my-function-role-assume_4F65D8FD.json}",
+      "my-function_role_new_0965544D": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-function_role_assume_9248D456.json}",
         "name": "lambda-role-my-function"
       }
     },
     "aws_iam_role_policy": {
-      "my-function_my-function-log-policy_78428521": {
+      "my-function_policy_05AEED31": {
         "name": "lambda-logging-my-function",
-        "policy": "\${data.aws_iam_policy_document.my-function_my-function-log-permissions_1D3E84D7.json}",
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}"
+        "policy": "\${data.aws_iam_policy_document.my-function_log-doc_9434393F.json}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}"
       }
     },
     "aws_lambda_function": {
-      "my-function_0A1E7AB6": {
+      "my-function_fn_E1D3A6DF": {
         "depends_on": [
-          "aws_cloudwatch_log_group.my-function_my-function-logs_A4870A22"
+          "aws_cloudwatch_log_group.my-function_logs_A567E0ED"
         ],
         "function_name": "my-function",
         "memory_size": 128,
-        "role": "\${aws_iam_role.my-function_my-function-role_my-function-role-new-role_EF570E59.arn}",
+        "role": "\${aws_iam_role.my-function_role_new_0965544D.arn}",
         "runtime": "nodejs18.x",
         "s3_bucket": "my-bucket",
         "s3_key": "key/something.zip",
@@ -954,7 +1135,7 @@ exports[`cdk-constructs Role with minimal configuration a new role builds 1`] = 
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-role_my-role-assume_AC40947D": {
+      "my-role_assume_5702DF20": {
         "statement": [
           {
             "actions": [
@@ -976,8 +1157,8 @@ exports[`cdk-constructs Role with minimal configuration a new role builds 1`] = 
   },
   "resource": {
     "aws_iam_role": {
-      "my-role_my-role-new-role_137CD40C": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_my-role-assume_AC40947D.json}",
+      "my-role_new_FBA59218": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_assume_5702DF20.json}",
         "name": "new-role"
       }
     }
@@ -989,7 +1170,7 @@ exports[`cdk-constructs Role with minimal configuration an existing role builds 
 "{
   "data": {
     "aws_iam_role": {
-      "my-role_my-role-external-role_747D99F6": {
+      "my-role_external_8FC3D7F6": {
         "name": "developer"
       }
     }
@@ -1001,7 +1182,7 @@ exports[`cdk-constructs Role with policy statements a new role builds 1`] = `
 "{
   "data": {
     "aws_iam_policy_document": {
-      "my-role_my-role-assume_AC40947D": {
+      "my-role_assume_5702DF20": {
         "statement": [
           {
             "actions": [
@@ -1023,16 +1204,16 @@ exports[`cdk-constructs Role with policy statements a new role builds 1`] = `
   },
   "resource": {
     "aws_iam_role": {
-      "my-role_my-role-new-role_137CD40C": {
-        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_my-role-assume_AC40947D.json}",
+      "my-role_new_FBA59218": {
+        "assume_role_policy": "\${data.aws_iam_policy_document.my-role_assume_5702DF20.json}",
         "name": "new-role"
       }
     },
     "aws_iam_role_policy": {
-      "my-role_my-role-user-policy_0B5BF5C7": {
+      "my-role_user_D2BB11EC": {
         "name": "user-permissions-my-role",
         "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
-        "role": "\${aws_iam_role.my-role_my-role-new-role_137CD40C.arn}"
+        "role": "\${aws_iam_role.my-role_new_FBA59218.arn}"
       }
     }
   }
@@ -1043,17 +1224,17 @@ exports[`cdk-constructs Role with policy statements an existing role builds 1`] 
 "{
   "data": {
     "aws_iam_role": {
-      "my-role_my-role-external-role_747D99F6": {
+      "my-role_external_8FC3D7F6": {
         "name": "developer"
       }
     }
   },
   "resource": {
     "aws_iam_role_policy": {
-      "my-role_my-role-user-policy_0B5BF5C7": {
+      "my-role_user_D2BB11EC": {
         "name": "user-permissions-my-role",
         "policy": "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Action\\":\\"s3:*\\",\\"Resource\\":\\"arn:aws:service:us-west-2:123456789012:entity\\",\\"Effect\\":\\"Allow\\"}]}",
-        "role": "\${data.aws_iam_role.my-role_my-role-external-role_747D99F6.arn}"
+        "role": "\${data.aws_iam_role.my-role_external_8FC3D7F6.arn}"
       }
     }
   }

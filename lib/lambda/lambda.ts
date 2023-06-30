@@ -20,11 +20,11 @@ import { DataAwsIamPolicyDocument } from '@cdktf/provider-aws/lib/data-aws-iam-p
 import { DataAwsRegion } from '@cdktf/provider-aws/lib/data-aws-region';
 import * as iam from 'iam-floyd';
 
-import { ShareableMeta } from '../shareable-meta';
 import { Role, ServiceRole } from '../iam';
 import { DataAwsSubnetIds } from '@cdktf/provider-aws/lib/data-aws-subnet-ids';
 import { DataAwsSecurityGroups } from '@cdktf/provider-aws/lib/data-aws-security-groups';
 import { DataAwsVpc } from '@cdktf/provider-aws/lib/data-aws-vpc';
+import { BaseConstruct } from '../core';
 
 export interface LambdaRoleConfig {
   arn?: string;
@@ -70,7 +70,7 @@ export interface LambdaVpcConfig extends Partial<LambdaFunctionVpcConfig> {
   vpcId?: string;
 }
 
-export class Lambda extends ShareableMeta {
+export class Lambda extends BaseConstruct {
   public static functionDefaults: Partial<LambdaFunctionConfig> = {
     memorySize: 128,
     timeout: 300,
@@ -90,37 +90,52 @@ export class Lambda extends ShareableMeta {
     retentionInDays: 14,
   };
 
-  constructor(scope: Construct, id: string, config: LambdaConfig) {
-    super(scope, id, config);
+  private static fnId = 'fn';
+  private static logId = 'logs';
+  private static alarmId = 'alarm';
+  private static regionId = 'region';
+  private static logDocId = 'log-doc';
+  private static policyId = 'policy';
+  private static roleId = 'role';
+  private static vpcId = 'vpc';
+  private static subnetId = 'subnets';
+  private static sgId = 'sgs';
 
-    this.id = id;
+  constructor(scope: Construct, id: string, config: LambdaConfig) {
+    super(scope, id);
+
     this.functionName = config.functionName;
-    this.region = new DataAwsRegion(scope, `${id}-region`);
+    this.region = new DataAwsRegion(scope, Lambda.regionId);
 
     this.buildRole(config.role);
 
     this.logGroup = new CloudwatchLogGroup(
       this,
-      `${id}-logs`,
+      Lambda.logId,
       this.logCfg(config)
     );
 
-    this.lambda = new LambdaFunction(this, id, this.lambdaCfg(config));
+    this.lambda = new LambdaFunction(this, Lambda.fnId, this.lambdaCfg(config));
 
     this.alarm = new CloudwatchMetricAlarm(
       this,
-      `${id}-alarm`,
+      Lambda.alarmId,
       this.alarmCfg(config)
     );
   }
 
   public lambda: LambdaFunction;
   public alarm: CloudwatchMetricAlarm;
+  public loggingPermissionsDoc!: DataAwsIamPolicyDocument;
+  public loggingPolicy!: IamRolePolicy;
+  public vpc?: DataAwsVpc;
+  public subnets?: DataAwsSubnetIds;
+  public sgs?: DataAwsSecurityGroups;
 
   private set logGroup(group: CloudwatchLogGroup) {
-    const logging = new DataAwsIamPolicyDocument(
+    this.loggingPermissionsDoc = new DataAwsIamPolicyDocument(
       this,
-      `${this.functionName}-log-permissions`,
+      Lambda.logDocId,
       {
         statement: [
           {
@@ -132,10 +147,10 @@ export class Lambda extends ShareableMeta {
       }
     );
 
-    new IamRolePolicy(this, `${this.functionName}-log-policy`, {
+    this.loggingPolicy = new IamRolePolicy(this, Lambda.policyId, {
       name: `lambda-logging-${this.functionName}`,
-      role: this.role.arn,
-      policy: logging.json,
+      role: this.role.name,
+      policy: this.loggingPermissionsDoc.json,
     });
 
     this._logGroup = group;
@@ -145,34 +160,33 @@ export class Lambda extends ShareableMeta {
     return this._logGroup;
   }
 
-  private id: string;
   private functionName: string;
   private region: DataAwsRegion;
   private _logGroup!: CloudwatchLogGroup;
-  private _role!: DataAwsIamRole | IamRole;
+  private _role!: Role;
 
   public get role(): DataAwsIamRole | IamRole {
-    return this._role;
+    return this._role.role;
   }
 
   public inVPC(config?: LambdaVpcConfig): Lambda {
     let { subnetIds, securityGroupIds, vpcId } = config || {};
 
     if (!config) {
-      const defaultVpc = new DataAwsVpc(this, `${this.id}-vpc`, {});
-      vpcId = defaultVpc.id;
+      this.vpc = new DataAwsVpc(this, Lambda.vpcId, {});
+      vpcId = this.vpc.id;
     }
 
     if (vpcId) {
-      const subnets = new DataAwsSubnetIds(this, `${this.id}-subnets`, {
+      this.subnets = new DataAwsSubnetIds(this, Lambda.subnetId, {
         vpcId: vpcId,
       });
-      subnetIds = subnetIds || subnets.ids;
+      subnetIds = subnetIds || this.subnets.ids;
 
-      const security = new DataAwsSecurityGroups(this, `${this.id}-sg`, {
+      this.sgs = new DataAwsSecurityGroups(this, Lambda.sgId, {
         filter: [{ name: 'vpc-id', values: [vpcId] }],
       });
-      securityGroupIds = securityGroupIds || security.ids;
+      securityGroupIds = securityGroupIds || this.sgs.ids;
     }
 
     if (!subnetIds || !securityGroupIds) {
@@ -186,23 +200,21 @@ export class Lambda extends ShareableMeta {
   }
 
   private buildRole(config: LambdaRoleConfig | undefined) {
-    const id = `${this.functionName}-role`;
-
     if (config && config.arn) {
-      const existing = new Role(this, id, {
+      const existing = new Role(this, Lambda.roleId, {
         arn: config.arn,
         policies: config.policies,
       });
-      this._role = existing.role;
+      this._role = existing;
       return;
     }
 
-    const newRole = new ServiceRole(this, id, {
+    const newRole = new ServiceRole(this, Lambda.roleId, {
       name: `lambda-role-${this.functionName}`,
       statement: config ? config.policies : [],
       services: ['lambda'],
     });
-    this._role = newRole.role;
+    this._role = newRole;
   }
 
   private lambdaCfg(config: LambdaConfig): LambdaFunctionConfig {
@@ -215,9 +227,7 @@ export class Lambda extends ShareableMeta {
       role: this.role.arn,
     };
 
-    return this.sharedMeta(
-      Object.assign({}, Lambda.functionDefaults, config, required)
-    );
+    return Object.assign({}, Lambda.functionDefaults, config, required);
   }
 
   private alarmCfg(config: LambdaConfig): CloudwatchMetricAlarmConfig {
@@ -240,12 +250,10 @@ export class Lambda extends ShareableMeta {
       this.lambdaCfg(config).timeout! / intermediate.period!
     );
 
-    return this.sharedMeta(
-      Object.assign(
-        { evaluationPeriods },
-        intermediate
-      ) as CloudwatchMetricAlarmConfig
-    );
+    return Object.assign(
+      { evaluationPeriods },
+      intermediate
+    ) as CloudwatchMetricAlarmConfig;
   }
 
   private logCfg(config: LambdaConfig): CloudwatchLogGroupConfig {
@@ -253,8 +261,25 @@ export class Lambda extends ShareableMeta {
       name: `/aws/lambda/${this.functionName}`,
     };
 
-    return this.sharedMeta(
-      Object.assign({}, Lambda.logGroupDefaults, config.logGroup, required)
+    return Object.assign(
+      {},
+      Lambda.logGroupDefaults,
+      config.logGroup,
+      required
     );
+  }
+
+  removeResources(): void {
+    this._role.removeResources();
+
+    this.node.tryRemoveChild(Lambda.fnId);
+    this.node.tryRemoveChild(Lambda.logId);
+    this.node.tryRemoveChild(Lambda.alarmId);
+    this.node.tryRemoveChild(Lambda.logDocId);
+    this.node.tryRemoveChild(Lambda.vpcId);
+    this.node.tryRemoveChild(Lambda.sgId);
+    this.node.tryRemoveChild(Lambda.subnetId);
+    this.node.tryRemoveChild(Lambda.regionId);
+    this.node.tryRemoveChild(Lambda.policyId);
   }
 }

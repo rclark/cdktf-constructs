@@ -6,7 +6,7 @@ import * as iam from 'iam-floyd';
 import { DataAwsIamPolicyDocument } from '@cdktf/provider-aws/lib/data-aws-iam-policy-document';
 import { IamRolePolicy } from '@cdktf/provider-aws/lib/iam-role-policy';
 
-import { ShareableMeta } from '../shareable-meta';
+import { BaseConstruct } from '../core';
 
 export type Principal = {
   type: PrincipalType;
@@ -44,45 +44,40 @@ interface IRoleConfig extends TerraformMetaArguments {
   principals?: Principal[];
 }
 
-export class Role extends ShareableMeta {
+export class Role extends BaseConstruct {
+  private static externalId = 'external';
+  private static newId = 'new';
+  private static assumeId = 'assume';
+  private static userId = 'user';
+
   public role: DataAwsIamRole | IamRole;
+  public assumeRoleDoc?: DataAwsIamPolicyDocument;
+  public userPolicy?: IamRolePolicy;
 
   constructor(scope: Construct, id: string, config: NewRoleConfig);
   constructor(scope: Construct, id: string, config: ExistingRoleConfig);
   constructor(scope: Construct, id: string, config: IRoleConfig) {
-    super(scope, id, config);
+    super(scope, id);
 
     if (config.arn) {
       const [, name] = config.arn.split('/');
 
-      this.role = new DataAwsIamRole(
-        this,
-        `${id}-external-role`,
-        this.sharedMeta({ name })
-      );
+      this.role = new DataAwsIamRole(this, Role.externalId, { name });
     } else if (config.principals && config.name) {
-      const assume = new DataAwsIamPolicyDocument(
-        this,
-        `${id}-assume`,
-        this.sharedMeta({
-          statement: [
-            {
-              effect: 'Allow',
-              actions: ['sts:AssumeRole'],
-              principals: config.principals,
-            },
-          ],
-        })
-      );
+      this.assumeRoleDoc = new DataAwsIamPolicyDocument(this, Role.assumeId, {
+        statement: [
+          {
+            effect: 'Allow',
+            actions: ['sts:AssumeRole'],
+            principals: config.principals,
+          },
+        ],
+      });
 
-      this.role = new IamRole(
-        this,
-        `${id}-new-role`,
-        this.sharedMeta({
-          name: config.name,
-          assumeRolePolicy: assume.json,
-        })
-      );
+      this.role = new IamRole(this, Role.newId, {
+        name: config.name,
+        assumeRolePolicy: this.assumeRoleDoc.json,
+      });
     } else {
       throw new Error(
         'Role must be provided either an arn or a name and principals list'
@@ -95,15 +90,18 @@ export class Role extends ShareableMeta {
         Statement: config.policies,
       };
 
-      new IamRolePolicy(
-        this,
-        `${id}-user-policy`,
-        this.sharedMeta({
-          name: `user-permissions-${id}`,
-          role: this.role.arn,
-          policy: JSON.stringify(policy),
-        })
-      );
+      this.userPolicy = new IamRolePolicy(this, Role.userId, {
+        name: `user-permissions-${id}`,
+        role: this.role.name,
+        policy: JSON.stringify(policy),
+      });
     }
+  }
+
+  removeResources(): void {
+    this.node.tryRemoveChild(Role.externalId);
+    this.node.tryRemoveChild(Role.newId);
+    this.node.tryRemoveChild(Role.assumeId);
+    this.node.tryRemoveChild(Role.userId);
   }
 }

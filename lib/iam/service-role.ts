@@ -11,6 +11,9 @@ export interface ServiceRoleConfig extends LimitedRoleConfig {
 }
 
 export class ServiceRole extends Role {
+  private static partitionId = 'partition';
+  public partition: DataAwsPartition;
+
   constructor(scope: Construct, id: string, config: ServiceRoleConfig) {
     const partition = new DataAwsPartition(scope, `${id}-partition`, config);
 
@@ -44,5 +47,12 @@ export class ServiceRole extends Role {
       name: config.name,
       principals: [{ type: PrincipalType.SERVICE, identifiers: principals }],
     });
+
+    this.partition = partition;
+  }
+
+  removeResources(): void {
+    super.removeResources();
+    this.node.tryRemoveChild(ServiceRole.partitionId);
   }
 }

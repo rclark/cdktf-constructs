@@ -16,7 +16,10 @@
     "test:update": "jest -u",
     "upgrade": "npm i cdktf@latest cdktf-cli@latest",
     "upgrade:next": "npm i cdktf@next cdktf-cli@next",
-    "lint": "prettier --write ."
+    "lint": "prettier --write .",
+    "first-time-setup": "cdktf deploy",
+    "build-lambda": "BUILD=1 GITSHA=$(git rev-parse HEAD) ts-node main.ts",
+    "deploy-lambda": "GITSHA=$(git rev-parse HEAD) cdktf deploy"
   },
   "engines": {
     "node": ">=16.0"
@@ -31,6 +34,7 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
+    "@aws-sdk/client-ecr": "^3.363.0",
     "@cdktf/provider-aws": "15.0.0",
     "cdktf": "^0.17.0",
     "constructs": "^10.2.60",

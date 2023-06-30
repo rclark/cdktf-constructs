@@ -20,6 +20,10 @@ import {
 import { PrivateRepository, PrivateRepositoryConfig } from '../lib/ecr';
 import { AwsProvider } from '@cdktf/provider-aws/lib/provider';
 import * as iam from 'iam-floyd';
+import {
+  EcrDockerLambda,
+  EcrDockerLambdaConfig,
+} from '../lib/lambda/ecr-docker-lambda';
 
 const fakeArn = 'arn:aws:service:us-west-2:123456789012:entity';
 const fakeSecurityGroup = 'sg-7ca1556d';
@@ -204,6 +208,61 @@ describe('cdk-constructs', () => {
         const stack = new TerraformStack(app, 'test');
         new AwsProvider(stack, 'aws', { region: 'us-west-2' });
         new DockerLambda(stack, 'id', cfg);
+
+        expect(Testing.fullSynth(stack)).toBeValidTerraform();
+      });
+    });
+  });
+
+  describe('EcrDockerLambda', () => {
+    describe('with minimal configuration', () => {
+      const cfg: EcrDockerLambdaConfig = {
+        functionName: 'my-function',
+        build: {
+          dockerfile: 'Dockerfile',
+          context: '.',
+        },
+      };
+
+      it('builds', () => {
+        const synth = Testing.synthScope((scope) => {
+          new EcrDockerLambda(scope, 'id', cfg);
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('makes valid terraform', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        new EcrDockerLambda(stack, 'id', cfg);
+
+        expect(Testing.fullSynth(stack)).toBeValidTerraform();
+      });
+    });
+
+    describe('with gitsha', () => {
+      const cfg: EcrDockerLambdaConfig = {
+        functionName: 'my-function',
+        gitsha: '123abc',
+        build: {
+          dockerfile: 'Dockerfile',
+          context: '.',
+        },
+      };
+
+      it('builds', () => {
+        const synth = Testing.synthScope((scope) => {
+          new EcrDockerLambda(scope, 'id', cfg);
+        });
+        expect(synth).toMatchSnapshot();
+      });
+
+      it('makes valid terraform', () => {
+        const app = Testing.app();
+        const stack = new TerraformStack(app, 'test');
+        new AwsProvider(stack, 'aws', { region: 'us-west-2' });
+        new EcrDockerLambda(stack, 'id', cfg);
 
         expect(Testing.fullSynth(stack)).toBeValidTerraform();
       });
