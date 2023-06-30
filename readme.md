@@ -4,7 +4,7 @@ An adventure in learning the terraform CDK.
 
 ## Goal
 
-Build a few composable CDKTF constructs that could help an application developer get an AWS Lambda function off the ground. Ultimately, the CDK script is at [main.ts](./main.ts).
+Build a few composable CDKTF constructs that could help an application developer get an AWS Lambda function off the ground. Ultimately, an example CDK script that a developer would put together using these constructs is at [main.ts](./main.ts).
 
 ## Bootstrapping
 
